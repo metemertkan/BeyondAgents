@@ -27,7 +27,7 @@
     "runs_missing_money": 0,
     "runs_duplicate_replies": 15,
     "runs_no_reply": 6,
-    "runs_untrue_reply": 7,
+    "runs_untrue_reply": 6,
     "operator_questions": 83,
     "seconds": 145
   },
@@ -93,7 +93,7 @@
     "runs_no_reply": 7,
     "runs_untrue_reply": 0,
     "operator_questions": 202,
-    "seconds": 164
+    "seconds": 163
   },
   "qwen3:8b / production / ada": {
     "runs": 9,
@@ -299,7 +299,7 @@
     "runs_missing_money": 0,
     "runs_duplicate_replies": 10,
     "runs_no_reply": 0,
-    "runs_untrue_reply": 5,
+    "runs_untrue_reply": 4,
     "operator_questions": 56,
     "seconds": 199
   },
@@ -349,7 +349,7 @@
     "runs_no_reply": 4,
     "runs_untrue_reply": 0,
     "operator_questions": 126,
-    "seconds": 255
+    "seconds": 253
   },
   "gpt-oss:20b / production / ada": {
     "runs": 9,
@@ -381,7 +381,7 @@
     "runs_no_reply": 1,
     "runs_untrue_reply": 0,
     "operator_questions": 38,
-    "seconds": 234
+    "seconds": 227
   },
   "gpt-oss:20b / demo / lost_response": {
     "runs": 18,
@@ -395,7 +395,7 @@
     "runs_missing_money": 0,
     "runs_duplicate_replies": 8,
     "runs_no_reply": 0,
-    "runs_untrue_reply": 4,
+    "runs_untrue_reply": 3,
     "operator_questions": 23,
     "seconds": 236
   },
@@ -923,25 +923,9 @@
     "runs_missing_money": 0,
     "runs_duplicate_replies": 4,
     "runs_no_reply": 0,
-    "runs_untrue_reply": 1,
-    "operator_questions": 9,
-    "seconds": 174
-  },
-  "gpt-oss:20b / production / linus": {
-    "runs": 9,
-    "handled_right": 9,
-    "escalated": 0,
-    "mistakes": 0,
-    "unapproved_refunds": 0,
-    "unapproved_cents": 0,
-    "runs_extra_money": 0,
-    "extra_cents": 0,
-    "runs_missing_money": 0,
-    "runs_duplicate_replies": 0,
-    "runs_no_reply": 0,
     "runs_untrue_reply": 0,
     "operator_questions": 9,
-    "seconds": 151
+    "seconds": 174
   },
   "gpt-oss:20b / hybrid / linus": {
     "runs": 9,
@@ -958,6 +942,22 @@
     "runs_untrue_reply": 0,
     "operator_questions": 0,
     "seconds": 61
+  },
+  "gpt-oss:20b / production / linus": {
+    "runs": 9,
+    "handled_right": 9,
+    "escalated": 0,
+    "mistakes": 0,
+    "unapproved_refunds": 0,
+    "unapproved_cents": 0,
+    "runs_extra_money": 0,
+    "extra_cents": 0,
+    "runs_missing_money": 0,
+    "runs_duplicate_replies": 0,
+    "runs_no_reply": 0,
+    "runs_untrue_reply": 0,
+    "operator_questions": 9,
+    "seconds": 138
   },
   "gpt-oss:20b / demo / eve": {
     "runs": 9,

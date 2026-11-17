@@ -92,10 +92,10 @@ ticket and condition: [`results/ep01/summary.md`](results/ep01/summary.md).
 | Refunds made without approval | 75 refunds, $3,675 | 0 | 0 |
 | Money refunded beyond what the ticket needed | $4,285 in 47 runs | $784 in 16 runs | **$0** |
 | Runs where the customer got the same reply twice or more | 15 | 0 | 0 |
-| Replies that told the customer something the records don't show | 7 | 0 | 0 |
+| Replies that told the customer something the records don't show | 6 | 0 | 0 |
 | Runs with no reply to the customer | 6 | 7 | 0 |
 | Operator questions and approval cards | 83 | 202 | 54 |
-| Seconds per ticket | 145 | 164 | 44 |
+| Seconds per ticket | 145 | 163 | 44 |
 
 What happened, in plain words:
 

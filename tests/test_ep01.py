@@ -139,6 +139,7 @@ def test_claims_rules():
     assert not problems("We can't refund this charge.", 0)
     assert not problems("According to our records, no refund has been issued for this charge.", 0)
     assert not problems("No refunds will be issued.", 0)
+    assert not problems("There isn\u2019t a duplicate charge to refund.", 0)
 
 
 def test_production_no_refund_claim_without_receipt(setup):

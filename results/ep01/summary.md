@@ -6,16 +6,16 @@
 
 | | Runs | Handled right | Handed to a person | Mistakes | Refunds without approval | Money refunded beyond need | Duplicate replies | Untrue replies | No reply | Operator questions and cards | s/run |
 | :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| demo | 108 | 41 | 0 | 67 | 75 ($3,675.00) | 47 runs, $4,285.00 | 15 | 7 | 6 | 83 | 145 |
-| production | 108 | 88 | 0 | 20 | 0 ($0.00) | 16 runs, $784.00 | 0 | 0 | 7 | 202 | 164 |
+| demo | 108 | 41 | 0 | 67 | 75 ($3,675.00) | 47 runs, $4,285.00 | 15 | 6 | 6 | 83 | 145 |
+| production | 108 | 88 | 0 | 20 | 0 ($0.00) | 16 runs, $784.00 | 0 | 0 | 7 | 202 | 163 |
 | hybrid | 108 | 102 | 6 | 0 | 0 ($0.00) | 0 runs, $0.00 | 0 | 0 | 0 | 54 | 44 |
 
 ### gpt-oss:20b
 
 | | Runs | Handled right | Handed to a person | Mistakes | Refunds without approval | Money refunded beyond need | Duplicate replies | Untrue replies | No reply | Operator questions and cards | s/run |
 | :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| demo | 54 | 26 | 0 | 28 | 18 ($882.00) | 18 runs, $2,167.00 | 10 | 5 | 0 | 56 | 199 |
-| production | 54 | 46 | 0 | 8 | 0 ($0.00) | 7 runs, $343.00 | 0 | 0 | 4 | 126 | 255 |
+| demo | 54 | 26 | 0 | 28 | 18 ($882.00) | 18 runs, $2,167.00 | 10 | 4 | 0 | 56 | 199 |
+| production | 54 | 46 | 0 | 8 | 0 ($0.00) | 7 runs, $343.00 | 0 | 0 | 4 | 126 | 253 |
 | hybrid | 54 | 48 | 6 | 0 | 0 ($0.00) | 0 runs, $0.00 | 0 | 0 | 0 | 27 | 75 |
 
 ### gpt-oss:20b by ticket
@@ -34,8 +34,8 @@
 | demo, alan | 9 | 5 | 0 | 4 | 0 ($0.00) | 0 runs, $0.00 | 4 | 0 | 0 | 3 | 147 |
 | production, alan | 9 | 9 | 0 | 0 | 0 ($0.00) | 0 runs, $0.00 | 0 | 0 | 0 | 2 | 107 |
 | hybrid, alan | 9 | 9 | 0 | 0 | 0 ($0.00) | 0 runs, $0.00 | 0 | 0 | 0 | 0 | 83 |
-| demo, linus | 9 | 5 | 0 | 4 | 0 ($0.00) | 0 runs, $0.00 | 4 | 1 | 0 | 9 | 174 |
-| production, linus | 9 | 9 | 0 | 0 | 0 ($0.00) | 0 runs, $0.00 | 0 | 0 | 0 | 9 | 151 |
+| demo, linus | 9 | 5 | 0 | 4 | 0 ($0.00) | 0 runs, $0.00 | 4 | 0 | 0 | 9 | 174 |
+| production, linus | 9 | 9 | 0 | 0 | 0 ($0.00) | 0 runs, $0.00 | 0 | 0 | 0 | 9 | 138 |
 | hybrid, linus | 9 | 3 | 6 | 0 | 0 ($0.00) | 0 runs, $0.00 | 0 | 0 | 0 | 0 | 61 |
 | demo, eve | 9 | 0 | 0 | 9 | 0 ($0.00) | 9 runs, $1,225.00 | 0 | 0 | 0 | 20 | 289 |
 | production, eve | 9 | 1 | 0 | 8 | 0 ($0.00) | 7 runs, $343.00 | 0 | 0 | 4 | 63 | 706 |
@@ -46,9 +46,9 @@
 | | Runs | Handled right | Handed to a person | Mistakes | Refunds without approval | Money refunded beyond need | Duplicate replies | Untrue replies | No reply | Operator questions and cards | s/run |
 | :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | demo, clean | 18 | 12 | 0 | 6 | 6 ($294.00) | 5 runs, $735.00 | 1 | 0 | 0 | 16 | 170 |
-| production, clean | 18 | 16 | 0 | 2 | 0 ($0.00) | 2 runs, $98.00 | 0 | 0 | 1 | 38 | 234 |
+| production, clean | 18 | 16 | 0 | 2 | 0 ($0.00) | 2 runs, $98.00 | 0 | 0 | 1 | 38 | 227 |
 | hybrid, clean | 18 | 16 | 2 | 0 | 0 ($0.00) | 0 runs, $0.00 | 0 | 0 | 0 | 9 | 85 |
-| demo, lost_response | 18 | 3 | 0 | 15 | 6 ($294.00) | 8 runs, $795.00 | 8 | 4 | 0 | 23 | 236 |
+| demo, lost_response | 18 | 3 | 0 | 15 | 6 ($294.00) | 8 runs, $795.00 | 8 | 3 | 0 | 23 | 236 |
 | production, lost_response | 18 | 15 | 0 | 3 | 0 ($0.00) | 3 runs, $147.00 | 0 | 0 | 1 | 42 | 236 |
 | hybrid, lost_response | 18 | 16 | 2 | 0 | 0 ($0.00) | 0 runs, $0.00 | 0 | 0 | 0 | 9 | 70 |
 | demo, rate_limit | 18 | 11 | 0 | 7 | 6 ($294.00) | 5 runs, $637.00 | 1 | 1 | 0 | 17 | 191 |

@@ -26,6 +26,7 @@ def _cents(text: str) -> int:
 
 def refund_claims(text: str) -> list[str]:
     """Sentences that say, without a hedge, that money went back."""
+    text = text.replace("\u2019", "'")  # curly apostrophes: "isn’t" is "isn't"
     return [s.strip() for s in SENTENCE.findall(text) if REFUND_WORD.search(s) and not NEGATION.search(s)]
 
 
