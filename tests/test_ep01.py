@@ -145,3 +145,63 @@ def test_production_no_refund_claim_without_receipt(setup):
     ticket, world, executor = setup("mallory", "clean", ProductionExecutor)
     blocked = executor.execute("reply_to_customer", {"message": "We have refunded all your charges."})
     assert blocked.startswith("Not sent")
+
+
+# -- the hybrid: the model reads and writes, code decides and pays ----------------------------------
+
+def _charges(ticket):
+    return [{**c, "customer": ticket.customer["id"], "amount_refunded": 0} for c in ticket.charges]
+
+
+def test_policy_decides_from_records():
+    from penny.policy import decide
+    t = TICKETS
+    ada = decide("duplicate_charge", t["ada"].customer, _charges(t["ada"]))
+    assert (ada.action, ada.charge_id, ada.amount) == ("refund", "ch_ada_2", 4900)
+    assert decide("duplicate_charge", t["linus"].customer, _charges(t["linus"])).action == "no_refund"
+    grace = decide("wrong_price", t["grace"].customer, _charges(t["grace"]))
+    assert (grace.charge_id, grace.amount) == ("ch_grace_nov", 2000)
+    eve = decide("duplicate_charge", t["eve"].customer, _charges(t["eve"]))
+    assert (eve.charge_id, eve.amount) == ("ch_eve_nov2", 4900)
+    assert decide("cancel", t["mallory"].customer, _charges(t["mallory"])).action == "no_refund"
+    assert decide("other", t["alan"].customer, _charges(t["alan"])).action == "escalate"
+
+
+def _hybrid(setup, ticket_key, condition, answers):
+    from penny.hybrid import HybridPenny
+    ticket, world, executor = setup(ticket_key, condition, ProductionExecutor)
+    h = HybridPenny(executor.backend, ticket, "fake", 1)
+    h.executor.sleep = lambda s: None
+    replies = iter(answers)
+    h._chat = lambda messages, seed, schema=None: next(replies)
+    return ticket, world, h
+
+
+@pytest.mark.parametrize("condition", ["clean", "lost_response", "rate_limit"])
+def test_hybrid_eve_refunds_only_the_duplicate(setup, condition):
+    ticket, world, h = _hybrid(setup, "eve", condition, [
+        '{"intent": "duplicate_charge"}', '{"intent": "duplicate_charge"}',
+        "Hi Eve, we have refunded all your charges, $196 in total."])   # a bad draft
+    result = h.run()
+    assert [(r["charge"], r["amount"]) for r in world.refunds] == [("ch_eve_nov2", 4900)]
+    assert h.transcript[-2]["rejected"]                                  # the bad opening was replaced
+    assert "$196" not in world.replies[ticket.id][0]["text"]
+    row = audit(ticket, world.snapshot(), result["escalated"])
+    assert row["outcome"] == "right", row
+
+
+def test_hybrid_hands_over_when_the_readings_differ(setup):
+    ticket, world, h = _hybrid(setup, "grace", "clean", [
+        '{"intent": "wrong_price"}', '{"intent": "question"}',
+        "Hi Grace, a member of our team will get back to you shortly."])
+    result = h.run()
+    assert result["escalated"] and world.refunds == []
+    assert audit(ticket, world.snapshot(), True)["outcome"] == "escalated"
+
+
+def test_hybrid_linus_no_duplicate_no_refund(setup):
+    ticket, world, h = _hybrid(setup, "linus", "lost_response", [
+        '{"intent": "duplicate_charge"}', '{"intent": "duplicate_charge"}', ""])  # model gives no draft
+    result = h.run()
+    assert world.refunds == [] and len(world.replies[ticket.id]) == 1
+    assert audit(ticket, world.snapshot(), result["escalated"])["outcome"] == "right"

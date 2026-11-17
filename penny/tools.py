@@ -48,6 +48,9 @@ class Backend:
     def close(self) -> None:
         self.http.close()
 
+    def find_customer(self) -> httpx.Response:
+        return self.http.get("/v1/customers", params={"email": self.ticket.email})
+
     def find_charges(self) -> httpx.Response:
         return self.http.get("/v1/charges", params={"email": self.ticket.email})
 

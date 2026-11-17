@@ -55,6 +55,11 @@ def _error(status: int, type_: str, code: str, message: str) -> JSONResponse:
 def create_app(world: World) -> FastAPI:
     app = FastAPI(title="Acme Cloud stand-in APIs")
 
+    @app.get("/v1/customers")
+    def find_customer(email: str):
+        customer = world.customers.get(email.strip().lower())
+        return {"data": [customer] if customer else []}
+
     @app.get("/v1/charges")
     def list_charges(email: str):
         customer = world.customers.get(email.strip().lower())

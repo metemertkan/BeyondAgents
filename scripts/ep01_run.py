@@ -16,6 +16,7 @@ from penny import agent
 from penny.audit import audit
 from penny.executors import DemoExecutor, ProductionExecutor
 from penny.faults import CONDITIONS, FaultyTransport
+from penny.hybrid import HybridPenny
 from penny.tickets import TICKETS
 from penny.tools import Backend
 from penny.world import Server, World
@@ -30,17 +31,22 @@ def one_run(model: str, ticket_key: str, condition: str, executor_name: str, see
     world.load(ticket.customer, [dict(c) for c in ticket.charges])
     with Server(world) as server:
         backend = Backend(server.url, FaultyTransport(condition), ticket)
-        executor = EXECUTORS[executor_name](backend, ticket)
         try:
-            result = agent.run(ticket, executor, model, seed, THINK.get(model, False))
+            if executor_name == "hybrid":
+                executor = HybridPenny(backend, ticket, model, seed, THINK.get(model, False))
+                result = executor.run()
+            else:
+                executor = EXECUTORS[executor_name](backend, ticket)
+                result = agent.run(ticket, executor, model, seed, THINK.get(model, False))
         finally:
             backend.close()
         snapshot = world.snapshot()
     row = {"model": model, "ticket": ticket_key, "condition": condition, "executor": executor_name,
            "seed": seed, "seconds": result["seconds"], "server_errors": result["server_errors"],
-           "operator_questions": executor.questions, **audit(ticket, snapshot),
+           "operator_questions": executor.questions, "intents": result.get("intents"),
+           **audit(ticket, snapshot, result.get("escalated", False)),
            "transcript": result["transcript"]}
-    if isinstance(executor, ProductionExecutor):
+    if hasattr(executor, "records"):
         row["records"] = executor.records()
     return row
 
@@ -50,7 +56,7 @@ def main() -> None:
     ap.add_argument("--models", default="qwen3:8b,gpt-oss:20b")
     ap.add_argument("--tickets", default=",".join(TICKETS))
     ap.add_argument("--conditions", default=",".join(CONDITIONS))
-    ap.add_argument("--executors", default="demo,production")
+    ap.add_argument("--executors", default="demo,production,hybrid")
     ap.add_argument("--repeats", type=int, default=3)
     ap.add_argument("--out", default="results/ep01/runs.jsonl")
     a = ap.parse_args()
@@ -78,7 +84,7 @@ def main() -> None:
         print(f"[{i}/{len(todo)}] {m:12s} {t:8s} {c:14s} {e:10s} seed={s} {row['seconds']:6.1f}s "
               f"refunded={row['refunded_cents']}/{row['right_refund_cents']} "
               f"unapproved={row['unapproved_refunds']} replies={row['reply_count']} "
-              f"problems={len(row['reply_problems'])} right={row['handled_right']}", flush=True)
+              f"problems={len(row['reply_problems'])} outcome={row['outcome']}", flush=True)
 
 
 if __name__ == "__main__":

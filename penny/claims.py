@@ -9,7 +9,7 @@ import re
 
 SENTENCE = re.compile(r"[^.!?\n]+")
 REFUND_WORD = re.compile(r"\brefund", re.I)
-NEGATION = re.compile(r"\b(no|never|not|unable|couldn't|could not|can't|cannot|won't|isn't|wasn't|failed|issues?|"
+NEGATION = re.compile(r"\b(no|never|not|nothing|haven't|hasn't|didn't|unable|couldn't|could not|can't|cannot|won't|isn't|wasn't|failed|issues?|"
                       r"problems?|delay(ed)?|pending|being checked|look(ing)? into|once|after|if)\b", re.I)
 MONEY = r"\$\s?(\d+(?:,\d{3})*(?:\.\d{1,2})?)"
 # An amount tied directly to a refund: "refund of $20", "refunded $20", "$20 has been refunded", "$20 refund".
