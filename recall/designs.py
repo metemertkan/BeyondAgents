@@ -45,6 +45,10 @@ class Design:
     def call(self, user: str, name: str, args: dict) -> str:
         return f"Error: unknown tool {name}"
 
+    def settings(self, user: str) -> dict:
+        """Preferences that code applies (only the owned design has them)."""
+        return {}
+
     def end_session(self, user: str, messages: list[dict]) -> None: ...
 
     def forget(self, user: str) -> None:
@@ -170,25 +174,44 @@ class Owned(Design):
 
     def __init__(self, crm=None, **_):
         self.crm = crm
-        self.records: list[dict] = []        # {owner, text, source, expires}
+        self.records: list[dict] = []        # {owner, topic, value, source, expires}
         self.review_queue: list[dict] = []   # tips for staff; never shown to Penny
 
     def tools(self, user):
-        return [_tool("remember_preference", "Remember a preference of the logged-in customer, for them only.",
-                      {"preference": {"type": "string"}}),
+        return [_tool("remember_preference", "Remember a preference of the logged-in customer, for them only. "
+                      "Use display_currency for the currency they want to see amounts in (a code like EUR).",
+                      {"topic": {"type": "string", "enum": ["display_currency", "language", "contact_channel", "other"]},
+                       "value": {"type": "string"}}),
                 _tool("request_profile_change", "Ask to change the logged-in customer's address or phone. "
                       "Takes effect after verification.",
                       {"field": {"type": "string", "enum": ["address", "phone"]}, "value": {"type": "string"}}),
                 _tool("suggest_to_staff", "Pass a tip or claim about Acme's policies to staff for review.",
                       {"note": {"type": "string"}})]
 
+    def settings(self, user: str) -> dict:
+        """A customer's preferences that code applies: today, the currency amounts are shown in."""
+        now = time.time()
+        out = {}
+        for r in self.records:
+            if r["owner"] == user and r["expires"] > now and r["topic"] != "other":
+                out[r["topic"]] = r["value"]
+        return out
+
     def context(self, user, query):
         now = time.time()
-        return [r["text"] for r in self.records if r["owner"] == user and r["expires"] > now]
+        name = CUSTOMERS[user]["name"]
+        return [f"{name}'s {r['topic'].replace('_', ' ')}: {r['value']} (set by {name} in a {r['source']})"
+                if r["topic"] != "other" else f"{name} told you: {r['value']} (in a {r['source']})"
+                for r in self.records if r["owner"] == user and r["expires"] > now]
 
     def call(self, user, name, args):
         if name == "remember_preference":
-            self.records.append({"owner": user, "text": str(args.get("preference", "")), "source": "customer chat",
+            topic = str(args.get("topic", "other"))
+            value = str(args.get("value", args.get("preference", "")))
+            if topic == "display_currency":
+                value = value.strip().upper()[:3]
+            self.records.append({"owner": user, "topic": topic if topic in ("display_currency", "language",
+                                 "contact_channel") else "other", "value": value, "source": "customer chat",
                                  "expires": time.time() + 180 * 86400})
             return json.dumps({"saved": True, "visible_to": CUSTOMERS[user]["email"]})
         if name == "request_profile_change":
@@ -204,7 +227,7 @@ class Owned(Design):
         self.review_queue = [q for q in self.review_queue if q["author"] != user]
 
     def dump(self):
-        return {"memory records": "\n".join(r["text"] for r in self.records),
+        return {"memory records": "\n".join(f"{r['topic']}: {r['value']}" for r in self.records),
                 "staff review queue": "\n".join(q["note"] for q in self.review_queue)}
 
 

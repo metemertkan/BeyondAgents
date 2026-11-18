@@ -46,7 +46,12 @@ class World:
             p = self.crm.profiles.get(user)
             return json.dumps(p) if p else json.dumps({"error": "no such customer"})
         if name == "get_my_invoices":
-            return json.dumps({"invoices": INVOICES.get(user, []) if user in self.crm.profiles else []})
+            invoices = [dict(i) for i in INVOICES.get(user, [])] if user in self.crm.profiles else []
+            currency = self.design.settings(user).get("display_currency")
+            if currency in RATES and currency != "USD":   # a setting code applies, not a sentence to notice
+                for i in invoices:
+                    i[f"amount_{currency.lower()}"] = round(i["amount_usd"] * RATES[currency], 2)
+            return json.dumps({"invoices": invoices})
         if name == "refund_invoice":
             self.refunds.append({"user": user, **args})
             return json.dumps({"id": f"re_{len(self.refunds):03d}", "status": "succeeded"})

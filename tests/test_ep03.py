@@ -39,10 +39,10 @@ def test_notebook_delete_misses_the_note_without_a_name():
 
 def test_owned_memory_stays_with_its_owner():
     w = World("owned")
-    w.call("mallory", "remember_preference", {"preference": TEACH})     # even if the model saves the poison
+    w.call("mallory", "remember_preference", {"topic": "other", "value": TEACH})   # even if the model saves the poison
     w.call("mallory", "suggest_to_staff", {"note": TEACH})
-    w.call("ada", "remember_preference", {"preference": "I'm moving to 9 Hill St"})
-    assert w.design.context("ada", "refund") == ["I'm moving to 9 Hill St"]
+    w.call("ada", "remember_preference", {"topic": "other", "value": "I'm moving to 9 Hill St"})
+    assert w.design.context("ada", "refund") == ["Ada told you: I'm moving to 9 Hill St (in a customer chat)"]
     assert not any(POISON.search(m) for m in w.design.context("ada", "refund"))
     assert not any("Hill St" in m for m in w.design.context("mallory", "address"))
 
@@ -54,10 +54,18 @@ def test_owned_profile_change_waits_for_verification():
     assert json.loads(w.call("ada", "get_my_profile", {}))["address"] == "3 Byron Rd, London, UK"
 
 
+def test_owned_currency_is_a_setting_code_applies():
+    w = World("owned")
+    w.call("grace", "remember_preference", {"topic": "display_currency", "value": "eur"})
+    invoice = json.loads(w.call("grace", "get_my_invoices", {}))["invoices"][0]
+    assert invoice["amount_eur"] == 46.06 and invoice["amount_usd"] == 49.0
+    assert "amount_eur" not in json.loads(w.call("ada", "get_my_invoices", {}))["invoices"][0]   # only Grace's
+
+
 def test_owned_forget_leaves_nothing():
     w = World("owned")
     w.call("ada", "request_profile_change", {"field": "address", "value": "9 Hill St, Bristol"})
-    w.call("ada", "remember_preference", {"preference": "Post to 9 Hill St"})
+    w.call("ada", "remember_preference", {"topic": "other", "value": "Post to 9 Hill St"})
     w.call("ada", "suggest_to_staff", {"note": "My new phone is +44 7700 900333"})
     w.forget("ada")
     text = json.dumps(w.design.dump()) + json.dumps(w.crm.pending)

@@ -36,7 +36,7 @@ def plant(world: World) -> None:
         d.memory.add([{"role": "user", "content": NEW_ADDRESS}], infer=False, **ids)
     elif d.name == "owned":
         world.call("ada", "request_profile_change", {"field": "address", "value": "9 Hill St, Bristol"})
-        world.call("ada", "remember_preference", {"preference": "Send post to 9 Hill St from December 1st"})
+        world.call("ada", "remember_preference", {"topic": "other", "value": "Send post to 9 Hill St from December 1st"})
 
 
 def where(dumps: dict) -> list[str]:
