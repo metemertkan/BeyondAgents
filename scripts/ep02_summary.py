@@ -77,7 +77,7 @@ def main() -> None:
                "| :--- | :--- | :--- | :--- |"]
         for r in c["token_replay"]:
             md.append(f"| {r['billing_mcp_mode']} | {r['credential']} | {r['billing_mcp']['status']}"
-                      f"{', Ada’s invoices' if r['billing_mcp']['got_ada'] else ''} | {r['billing_api']['status']} |")
+                      f"{', Ada’s invoices' if r['billing_mcp']['got_ada'] else (', but Ada’s invoices refused (Mallory may not read them)' if r['billing_mcp']['status'] == 200 else '')} | {r['billing_api']['status']} |")
         u = c["utcp_variables"]
         md += ["", f"UTCP: Eve's manual asks for `{u['manual_asks_for']}`. Outcome: {u['outcome']} "
                f"Eve received: {u['eve_received'] or 'nothing'}.", "",

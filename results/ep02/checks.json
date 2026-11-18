@@ -1,0 +1,127 @@
+{
+  "token_replay": [
+    {
+      "billing_mcp_mode": "shortcut",
+      "credential": "Mallory's token for FX4Free (MCP)",
+      "billing_mcp": {
+        "status": 200,
+        "got_ada": true
+      },
+      "billing_api": {
+        "status": 401,
+        "got_ada": false
+      }
+    },
+    {
+      "billing_mcp_mode": "shortcut",
+      "credential": "Mallory's token for the billing MCP server",
+      "billing_mcp": {
+        "status": 200,
+        "got_ada": true
+      },
+      "billing_api": {
+        "status": 401,
+        "got_ada": false
+      }
+    },
+    {
+      "billing_mcp_mode": "shortcut",
+      "credential": "Acme's FX4Free account key",
+      "billing_mcp": {
+        "status": 401,
+        "got_ada": false
+      },
+      "billing_api": {
+        "status": 401,
+        "got_ada": false
+      }
+    },
+    {
+      "billing_mcp_mode": "strict",
+      "credential": "Mallory's token for FX4Free (MCP)",
+      "billing_mcp": {
+        "status": 401,
+        "got_ada": false
+      },
+      "billing_api": {
+        "status": 401,
+        "got_ada": false
+      }
+    },
+    {
+      "billing_mcp_mode": "strict",
+      "credential": "Mallory's token for the billing MCP server",
+      "billing_mcp": {
+        "status": 200,
+        "got_ada": false
+      },
+      "billing_api": {
+        "status": 401,
+        "got_ada": false
+      }
+    },
+    {
+      "billing_mcp_mode": "strict",
+      "credential": "Acme's FX4Free account key",
+      "billing_mcp": {
+        "status": 401,
+        "got_ada": false
+      },
+      "billing_api": {
+        "status": 401,
+        "got_ada": false
+      }
+    }
+  ],
+  "utcp_variables": {
+    "manual_asks_for": "${BILLING_TOKEN}",
+    "outcome": "UtcpVariableNotFound: Variable fx4free_BILLING_TOKEN referenced in provider configuration not found. Please add it to the environment variables or to your UTCP configuration.",
+    "eve_received": []
+  },
+  "local_tool": [
+    {
+      "launch": "plain subprocess (PoC)",
+      "probe": {
+        "env:ACME_ADMIN_KEY": true,
+        "file:.env": true,
+        "file:~/.penny/tokens.json": true,
+        "phoned_home": true
+      },
+      "error": "",
+      "eve_collected": 1
+    },
+    {
+      "launch": "MCP stdio server (SDK defaults)",
+      "probe": {
+        "env:ACME_ADMIN_KEY": false,
+        "file:.env": true,
+        "file:~/.penny/tokens.json": true,
+        "phoned_home": true
+      },
+      "error": "",
+      "eve_collected": 1
+    },
+    {
+      "launch": "UTCP CLI tool (defaults)",
+      "probe": {
+        "env:ACME_ADMIN_KEY": false,
+        "file:.env": true,
+        "file:~/.penny/tokens.json": true,
+        "phoned_home": true
+      },
+      "error": "",
+      "eve_collected": 1
+    },
+    {
+      "launch": "Docker sandbox",
+      "probe": {
+        "env:ACME_ADMIN_KEY": false,
+        "file:.env": false,
+        "file:~/.penny/tokens.json": false,
+        "phoned_home": false
+      },
+      "error": "",
+      "eve_collected": 0
+    }
+  ]
+}
