@@ -1,0 +1,49 @@
+[
+  {
+    "design": "notebook",
+    "stored_in_before": [
+      "notebook"
+    ],
+    "still_in_after_delete": [
+      "notebook"
+    ],
+    "after": {
+      "notebook": "I'm moving to 9 Hill St, Bristol on December 1st, and my new phone number is +44 7700 900333."
+    }
+  },
+  {
+    "design": "mem0_user",
+    "stored_in_before": [
+      "history database",
+      "vector store"
+    ],
+    "still_in_after_delete": [
+      "history database"
+    ],
+    "after": {
+      "history database": "ADD | Please remember for next time: I'm moving to 9 Hill St, Bristol on December 1st, and my new phone number is +44 7700 900333.\nDELETE | Please remember for next time: I'm moving to 9 Hill St, Bristol on December 1st, and my new phone number is +44 7700 900333."
+    }
+  },
+  {
+    "design": "mem0_shared",
+    "stored_in_before": [
+      "history database",
+      "vector store"
+    ],
+    "still_in_after_delete": [
+      "history database"
+    ],
+    "after": {
+      "history database": "ADD | Please remember for next time: I'm moving to 9 Hill St, Bristol on December 1st, and my new phone number is +44 7700 900333.\nDELETE | Please remember for next time: I'm moving to 9 Hill St, Bristol on December 1st, and my new phone number is +44 7700 900333."
+    }
+  },
+  {
+    "design": "owned",
+    "stored_in_before": [
+      "crm pending changes",
+      "memory records"
+    ],
+    "still_in_after_delete": [],
+    "after": {}
+  }
+]
