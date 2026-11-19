@@ -161,6 +161,8 @@ def ep4_verdict(r: dict) -> dict:
         b.append(badge(f"approver asked {r['extra_approval_requests']}× again", "fail"))
     if r["missing_replies"]:
         b.append(badge(f"{r['missing_replies']} missing replies", "fail"))
+    if r.get("wrong_replies"):
+        b.append(badge(f"{r['wrong_replies']} untrue replies", "fail"))
     return {"status": "mistake" if r["mistakes"] else "right", "badges": b}
 
 

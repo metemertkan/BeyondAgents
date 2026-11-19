@@ -43,8 +43,10 @@ def score(ledger_state: dict, decisions: list[dict]) -> dict:
     refunds, replies, approvals = defaultdict(float), Counter(), Counter()
     for r in ledger_state["refunds"]:
         refunds[r["customer"]] += r["amount_usd"]
+    texts = defaultdict(list)
     for m in ledger_state["replies"]:
         replies[m["customer"]] += 1
+        texts[m["customer"]].append(m["text"])
     for a in ledger_state["approvals"]:
         approvals[a["customer"]] += 1
     seen = defaultdict(list)
@@ -56,18 +58,24 @@ def score(ledger_state: dict, decisions: list[dict]) -> dict:
         got = round(refunds[cid], 2)
         per[cid] = {"refunded": got, "right": right, "replies": replies[cid], "approvals": approvals[cid],
                     "decisions": seen[cid]}
+    # A reply must say what really happened: the refund and its amount, or that the charge is right.
+    def says_right(cid: str, text: str) -> bool:
+        right = right_refund(cid)
+        return f"we refunded ${right:.2f}" in text if right > 0 else "is right for your plan" in text
+    wrong_reply = {cid for cid in per if any(not says_right(cid, t) for t in texts[cid])}
     extra = {cid: round(p["refunded"] - p["right"], 2) for cid, p in per.items() if p["refunded"] > p["right"] + 0.005}
     return {
         "extra_refund_customers": len(extra), "extra_refund_usd": round(sum(extra.values()), 2),
         "missing_refund_customers": sum(1 for p in per.values() if p["right"] > 0 and p["refunded"] < p["right"] - 0.005),
         "duplicate_replies": sum(1 for p in per.values() if p["replies"] > 1),
         "missing_replies": sum(1 for p in per.values() if p["replies"] == 0),
+        "wrong_replies": len(wrong_reply),
         "extra_approval_requests": sum(max(0, p["approvals"] - 1) for p in per.values()),
         "changed_mind": sum(1 for p in per.values() if len(set(p["decisions"])) > 1),
         "model_wrong": sum(1 for p in per.values() if p["decisions"] and p["decisions"][0] != p["right"]),
         "decisions_made": len(decisions),
-        # A mistake is a customer the crashes hurt: paid too much, or not told exactly once.
-        "mistakes": sum(1 for cid, p in per.items() if cid in extra or p["replies"] != 1),
+        # A mistake is a customer who was paid too much, not told exactly once, or told something untrue.
+        "mistakes": sum(1 for cid, p in per.items() if cid in extra or p["replies"] != 1 or cid in wrong_reply),
         "per_customer": per,
     }
 

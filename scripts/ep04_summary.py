@@ -18,6 +18,7 @@ def stats(rows: list[dict]) -> dict:
     return {"jobs": len(rows), "finished": sum(r["finished"] for r in rows), "mistakes": s("mistakes"),
             "extra_refund_customers": s("extra_refund_customers"), "extra_refund_usd": round(s("extra_refund_usd"), 2),
             "duplicate_replies": s("duplicate_replies"), "missing_replies": s("missing_replies"),
+            "wrong_replies": sum(r.get("wrong_replies", 0) for r in rows),
             "extra_approval_requests": s("extra_approval_requests"), "changed_mind": s("changed_mind"),
             "missing_refund_customers": s("missing_refund_customers"), "model_wrong": s("model_wrong"),
             "decisions_made": s("decisions_made"), "seconds": round(s("seconds") / max(len(rows), 1))}
@@ -25,12 +26,12 @@ def stats(rows: list[dict]) -> dict:
 
 def table(groups: dict[str, dict], title: str) -> list[str]:
     lines = [f"### {title}", "",
-             "| | Jobs | Mistakes (customers) | Extra refunds | Repeated replies | Missing replies | "
+             "| | Jobs | Mistakes (customers) | Extra refunds | Repeated replies | Missing replies | Untrue replies | "
              "Approval asked again | Model changed its mind | Model decisions | s/job |",
-             "| :--- |" + " ---: |" * 9]
+             "| :--- |" + " ---: |" * 10]
     for name, x in groups.items():
         lines.append(f"| {name} | {x['jobs']} | {x['mistakes']} | {x['extra_refund_customers']} (${x['extra_refund_usd']:.0f}) | "
-                     f"{x['duplicate_replies']} | {x['missing_replies']} | {x['extra_approval_requests']} | "
+                     f"{x['duplicate_replies']} | {x['missing_replies']} | {x['wrong_replies']} | {x['extra_approval_requests']} | "
                      f"{x['changed_mind']} | {x['decisions_made']} | {x['seconds']} |")
     return lines + [""]
 

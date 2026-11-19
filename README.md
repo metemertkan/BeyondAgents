@@ -439,7 +439,7 @@ What happened, in plain words:
   second decision, a second approval request, a second $20 and a second reply: $320 refunded twice
   over 10 jobs, and the person approving asked 26 extra times.
 - **Checkpoints and a durable workflow stop the restart from redoing finished steps, not the step
-  that was running.** In both, exactly one crash window per job hurt a customer: the refund that went
+  that was running.** In both, two crash windows per job hurt a customer: the refund that went
   through just before the crash was sent again, and so was the reply. That is how they are built:
   a step's result is recorded after the step, so a step that dies before recording runs again.
   A durable engine records work exactly once; it doesn't do work exactly once.
@@ -463,10 +463,18 @@ What happened, in plain words:
 
 LangGraph's default writes checkpoints in the background while the next step runs; after a hard
 crash, the last one is often missing. In the month-end job with a rule instead of a model (fast
-steps), that repeated two extra replies; with a model in each step (slow steps) the background write
+steps), that repeated three extra replies; with a model in each step (slow steps) the background write
 finished in time. If a step has side effects, `durability="sync"` costs little.
 
-One more lesson, from a bug of mine: after a crash before LangGraph's first checkpoint,
+Another bug of mine, found by reading the replies on the site: every refunded customer was told
+"we're looking into November's invoice; a colleague will follow up". The refund's own `status`
+field ("succeeded") overwrote the HTTP status code in the worker, so every refund looked failed,
+and the scoring counted replies without reading them. Now the scoring checks that each reply says
+what happened (the refund and its amount, or that the charge is right), and all 48 jobs ran
+again; the numbers above are from that batch. The first batch is in
+`results/ep04/runs_v1_reply_bug.jsonl`.
+
+One more, about resuming: after a crash before LangGraph's first checkpoint,
 `get_state()` reports `next=()` while the start is still pending. My first resume code checked
 `snapshot.next` and silently skipped the whole job. Resume logic is your code too: test it by
 crashing it.

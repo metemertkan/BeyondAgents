@@ -58,3 +58,12 @@ def test_durable_workflow_with_and_without_keys(design, extra_refunds):
 def test_poc_redoes_the_whole_customer():
     job = one_job("rule", "poc", plan_seed=1, decider="rule")
     assert job["extra_refund_customers"] >= 1 and job["extra_approval_requests"] >= 2
+
+
+@pytest.mark.parametrize("design", ["poc", "checkpoint", "durable", "durable_keys"])
+def test_replies_say_what_happened(design):
+    """Every customer is told the truth: the refund and its amount, or that the charge is right."""
+    job = one_job("rule", design, plan_seed=0, decider="rule")
+    assert job["wrong_replies"] == 0 and job["mistakes"] == 0
+    texts = {m["customer"]: m["text"] for m in job["ledger"]["replies"]}
+    assert texts["c01"] == "Hi Ada, we refunded $20.00 for November's overcharge."

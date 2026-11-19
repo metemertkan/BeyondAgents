@@ -7,12 +7,13 @@
     "extra_refund_usd": 0,
     "duplicate_replies": 0,
     "missing_replies": 0,
+    "wrong_replies": 0,
     "extra_approval_requests": 0,
     "changed_mind": 0,
     "missing_refund_customers": 0,
     "model_wrong": 0,
     "decisions_made": 20,
-    "seconds": 154
+    "seconds": 158
   },
   "no crash / qwen3:8b / poc": {
     "jobs": 1,
@@ -22,12 +23,13 @@
     "extra_refund_usd": 0,
     "duplicate_replies": 0,
     "missing_replies": 0,
+    "wrong_replies": 0,
     "extra_approval_requests": 0,
     "changed_mind": 0,
     "missing_refund_customers": 0,
     "model_wrong": 0,
     "decisions_made": 10,
-    "seconds": 51
+    "seconds": 52
   },
   "no crash / all / checkpoint": {
     "jobs": 2,
@@ -37,12 +39,13 @@
     "extra_refund_usd": 0,
     "duplicate_replies": 0,
     "missing_replies": 0,
+    "wrong_replies": 0,
     "extra_approval_requests": 0,
     "changed_mind": 0,
     "missing_refund_customers": 0,
     "model_wrong": 0,
     "decisions_made": 20,
-    "seconds": 143
+    "seconds": 148
   },
   "no crash / qwen3:8b / checkpoint": {
     "jobs": 1,
@@ -52,12 +55,13 @@
     "extra_refund_usd": 0,
     "duplicate_replies": 0,
     "missing_replies": 0,
+    "wrong_replies": 0,
     "extra_approval_requests": 0,
     "changed_mind": 0,
     "missing_refund_customers": 0,
     "model_wrong": 0,
     "decisions_made": 10,
-    "seconds": 48
+    "seconds": 49
   },
   "no crash / all / durable": {
     "jobs": 2,
@@ -67,12 +71,13 @@
     "extra_refund_usd": 0,
     "duplicate_replies": 0,
     "missing_replies": 0,
+    "wrong_replies": 0,
     "extra_approval_requests": 0,
     "changed_mind": 0,
     "missing_refund_customers": 0,
     "model_wrong": 0,
     "decisions_made": 20,
-    "seconds": 143
+    "seconds": 147
   },
   "no crash / qwen3:8b / durable": {
     "jobs": 1,
@@ -82,12 +87,13 @@
     "extra_refund_usd": 0,
     "duplicate_replies": 0,
     "missing_replies": 0,
+    "wrong_replies": 0,
     "extra_approval_requests": 0,
     "changed_mind": 0,
     "missing_refund_customers": 0,
     "model_wrong": 0,
     "decisions_made": 10,
-    "seconds": 47
+    "seconds": 48
   },
   "no crash / all / durable_keys": {
     "jobs": 2,
@@ -97,12 +103,13 @@
     "extra_refund_usd": 0,
     "duplicate_replies": 0,
     "missing_replies": 0,
+    "wrong_replies": 0,
     "extra_approval_requests": 0,
     "changed_mind": 0,
     "missing_refund_customers": 0,
     "model_wrong": 0,
     "decisions_made": 20,
-    "seconds": 142
+    "seconds": 149
   },
   "no crash / qwen3:8b / durable_keys": {
     "jobs": 1,
@@ -112,12 +119,13 @@
     "extra_refund_usd": 0,
     "duplicate_replies": 0,
     "missing_replies": 0,
+    "wrong_replies": 0,
     "extra_approval_requests": 0,
     "changed_mind": 0,
     "missing_refund_customers": 0,
     "model_wrong": 0,
     "decisions_made": 10,
-    "seconds": 45
+    "seconds": 47
   },
   "crashes / all / poc": {
     "jobs": 10,
@@ -127,12 +135,13 @@
     "extra_refund_usd": 320.0,
     "duplicate_replies": 10,
     "missing_replies": 0,
+    "wrong_replies": 0,
     "extra_approval_requests": 26,
     "changed_mind": 0,
     "missing_refund_customers": 0,
     "model_wrong": 0,
     "decisions_made": 140,
-    "seconds": 193
+    "seconds": 196
   },
   "crashes / qwen3:8b / poc": {
     "jobs": 5,
@@ -142,12 +151,13 @@
     "extra_refund_usd": 160.0,
     "duplicate_replies": 5,
     "missing_replies": 0,
+    "wrong_replies": 0,
     "extra_approval_requests": 13,
     "changed_mind": 0,
     "missing_refund_customers": 0,
     "model_wrong": 0,
     "decisions_made": 70,
-    "seconds": 56
+    "seconds": 57
   },
   "crashes / all / checkpoint": {
     "jobs": 10,
@@ -157,12 +167,13 @@
     "extra_refund_usd": 200.0,
     "duplicate_replies": 10,
     "missing_replies": 0,
+    "wrong_replies": 0,
     "extra_approval_requests": 10,
     "changed_mind": 0,
     "missing_refund_customers": 0,
     "model_wrong": 0,
     "decisions_made": 110,
-    "seconds": 163
+    "seconds": 165
   },
   "crashes / qwen3:8b / checkpoint": {
     "jobs": 5,
@@ -172,12 +183,13 @@
     "extra_refund_usd": 100.0,
     "duplicate_replies": 5,
     "missing_replies": 0,
+    "wrong_replies": 0,
     "extra_approval_requests": 5,
     "changed_mind": 0,
     "missing_refund_customers": 0,
     "model_wrong": 0,
     "decisions_made": 55,
-    "seconds": 50
+    "seconds": 51
   },
   "crashes / all / durable": {
     "jobs": 10,
@@ -187,6 +199,7 @@
     "extra_refund_usd": 200.0,
     "duplicate_replies": 10,
     "missing_replies": 0,
+    "wrong_replies": 0,
     "extra_approval_requests": 10,
     "changed_mind": 0,
     "missing_refund_customers": 0,
@@ -202,12 +215,13 @@
     "extra_refund_usd": 100.0,
     "duplicate_replies": 5,
     "missing_replies": 0,
+    "wrong_replies": 0,
     "extra_approval_requests": 5,
     "changed_mind": 0,
     "missing_refund_customers": 0,
     "model_wrong": 0,
     "decisions_made": 55,
-    "seconds": 54
+    "seconds": 55
   },
   "crashes / all / durable_keys": {
     "jobs": 10,
@@ -217,12 +231,13 @@
     "extra_refund_usd": 0,
     "duplicate_replies": 0,
     "missing_replies": 0,
+    "wrong_replies": 0,
     "extra_approval_requests": 0,
     "changed_mind": 0,
     "missing_refund_customers": 0,
     "model_wrong": 0,
     "decisions_made": 110,
-    "seconds": 167
+    "seconds": 170
   },
   "crashes / qwen3:8b / durable_keys": {
     "jobs": 5,
@@ -232,12 +247,13 @@
     "extra_refund_usd": 0,
     "duplicate_replies": 0,
     "missing_replies": 0,
+    "wrong_replies": 0,
     "extra_approval_requests": 0,
     "changed_mind": 0,
     "missing_refund_customers": 0,
     "model_wrong": 0,
     "decisions_made": 55,
-    "seconds": 54
+    "seconds": 55
   },
   "no crash / gpt-oss:20b / poc": {
     "jobs": 1,
@@ -247,12 +263,13 @@
     "extra_refund_usd": 0,
     "duplicate_replies": 0,
     "missing_replies": 0,
+    "wrong_replies": 0,
     "extra_approval_requests": 0,
     "changed_mind": 0,
     "missing_refund_customers": 0,
     "model_wrong": 0,
     "decisions_made": 10,
-    "seconds": 256
+    "seconds": 265
   },
   "no crash / gpt-oss:20b / checkpoint": {
     "jobs": 1,
@@ -262,12 +279,13 @@
     "extra_refund_usd": 0,
     "duplicate_replies": 0,
     "missing_replies": 0,
+    "wrong_replies": 0,
     "extra_approval_requests": 0,
     "changed_mind": 0,
     "missing_refund_customers": 0,
     "model_wrong": 0,
     "decisions_made": 10,
-    "seconds": 238
+    "seconds": 247
   },
   "no crash / gpt-oss:20b / durable": {
     "jobs": 1,
@@ -277,12 +295,13 @@
     "extra_refund_usd": 0,
     "duplicate_replies": 0,
     "missing_replies": 0,
+    "wrong_replies": 0,
     "extra_approval_requests": 0,
     "changed_mind": 0,
     "missing_refund_customers": 0,
     "model_wrong": 0,
     "decisions_made": 10,
-    "seconds": 239
+    "seconds": 246
   },
   "no crash / gpt-oss:20b / durable_keys": {
     "jobs": 1,
@@ -292,12 +311,13 @@
     "extra_refund_usd": 0,
     "duplicate_replies": 0,
     "missing_replies": 0,
+    "wrong_replies": 0,
     "extra_approval_requests": 0,
     "changed_mind": 0,
     "missing_refund_customers": 0,
     "model_wrong": 0,
     "decisions_made": 10,
-    "seconds": 239
+    "seconds": 252
   },
   "crashes / gpt-oss:20b / poc": {
     "jobs": 5,
@@ -307,12 +327,13 @@
     "extra_refund_usd": 160.0,
     "duplicate_replies": 5,
     "missing_replies": 0,
+    "wrong_replies": 0,
     "extra_approval_requests": 13,
     "changed_mind": 0,
     "missing_refund_customers": 0,
     "model_wrong": 0,
     "decisions_made": 70,
-    "seconds": 330
+    "seconds": 335
   },
   "crashes / gpt-oss:20b / checkpoint": {
     "jobs": 5,
@@ -322,12 +343,13 @@
     "extra_refund_usd": 100.0,
     "duplicate_replies": 5,
     "missing_replies": 0,
+    "wrong_replies": 0,
     "extra_approval_requests": 5,
     "changed_mind": 0,
     "missing_refund_customers": 0,
     "model_wrong": 0,
     "decisions_made": 55,
-    "seconds": 277
+    "seconds": 279
   },
   "crashes / gpt-oss:20b / durable": {
     "jobs": 5,
@@ -337,6 +359,7 @@
     "extra_refund_usd": 100.0,
     "duplicate_replies": 5,
     "missing_replies": 0,
+    "wrong_replies": 0,
     "extra_approval_requests": 5,
     "changed_mind": 0,
     "missing_refund_customers": 0,
@@ -352,11 +375,12 @@
     "extra_refund_usd": 0,
     "duplicate_replies": 0,
     "missing_replies": 0,
+    "wrong_replies": 0,
     "extra_approval_requests": 0,
     "changed_mind": 0,
     "missing_refund_customers": 0,
     "model_wrong": 0,
     "decisions_made": 55,
-    "seconds": 280
+    "seconds": 285
   }
 }

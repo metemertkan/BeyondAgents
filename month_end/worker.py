@@ -91,7 +91,8 @@ class Job:
     def refund(self, customer: str, amount: float, key: str | None = None) -> dict:
         r = self.http.post("/refunds", json={"customer": customer, "amount_usd": amount},
                            headers={"Idempotency-Key": key} if key else {})
-        return {"status": r.status_code, **r.json()}
+        # The refund itself has a "status" field ("succeeded"), so the HTTP status gets its own name.
+        return {**r.json(), "http_status": r.status_code}
 
     def reply(self, customer: str, text: str, key: str | None = None) -> None:
         if key and any(m["metadata"].get("key") == key
@@ -127,7 +128,7 @@ def run_poc(job: Job) -> None:
             if job.wait_approval(aid) == "approved":
                 r = job.refund(cid, amount)
                 job.maybe_crash(cid, "after_refund")
-                outcome = "refunded" if r["status"] == 200 else "failed"
+                outcome = "refunded" if r["http_status"] == 200 else "failed"
             else:
                 outcome = "failed"
         job.reply(cid, reply_text(cid, outcome, amount))
@@ -174,7 +175,7 @@ def run_checkpoint(job: Job) -> None:
         if s.get("status") == "approved":
             r = job.refund(cid(s), s["amount"])
             job.maybe_crash(cid(s), "after_refund")
-            return {"outcome": "refunded" if r["status"] == 200 else "failed"}
+            return {"outcome": "refunded" if r["http_status"] == 200 else "failed"}
         return {"outcome": "failed"} if s.get("status") == "rejected" else {}
 
     def reply(s):
@@ -234,7 +235,7 @@ def run_durable(job: Job, keys: bool) -> None:
     def refund_step(cid: str, amount: float) -> int:
         r = job.refund(cid, amount, k(cid, "refund"))
         job.maybe_crash(cid, "after_refund")
-        return r["status"]
+        return r["http_status"]
 
     @DBOS.step()
     def reply_step(cid: str, text: str) -> None:
