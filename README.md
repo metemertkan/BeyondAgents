@@ -16,6 +16,7 @@ stand-ins for the APIs the agent talks to. No accounts, no keys.
 | 1 | Can you trust an AI agent with the refund button? | [`penny/`](penny), [`scripts/ep01_run.py`](scripts/ep01_run.py) |
 | 2 | Your AI agent has keys to your systems. Who else gets to use them? | [`portal/`](portal), [`scripts/ep02_run.py`](scripts/ep02_run.py) |
 | 3 | Can one customer teach your AI agent a bad habit, for everyone? | [`recall/`](recall), [`scripts/ep03_run.py`](scripts/ep03_run.py) |
+| 4 | What happens when your AI agent crashes halfway through a job? | [`month_end/`](month_end), [`scripts/ep04_run.py`](scripts/ep04_run.py) |
 
 ## Episode 1: Penny and the refund button
 
@@ -378,3 +379,92 @@ uv run python -m scripts.ep03_summary
   runs were run again; the first version's runs are kept in `results/ep03/runs_v1_owned_bare_memories.jsonl`.
 - "Ada told the fake policy" only catches replies that restate it; most poisoned runs refunded
   without restating it, which the refund column counts.
+
+## Episode 4: What happens when your AI agent crashes halfway through a job?
+
+Month end at Acme Cloud: some customers on the $29 Starter plan were charged $49 for November.
+Penny works through ten customers. For each one the model decides the refund, a person approves it
+(scripted, after a delay), Penny refunds $20 and replies. A partial refund on purpose: a payments
+API stops a second *full* refund of a charge, but not a second $20.
+
+Then I pulled the plug. In each job the worker dies four times (`os._exit`, like `kill -9`),
+once in each window where work is done but not yet written down: right after a decision, after
+asking for approval, after a refund, after a reply. A supervisor restarts it, like a deployment or
+a restarting pod would. The payments, helpdesk and approval services run outside the worker, so
+they outlive the crashes, and they are the ground truth.
+
+| | How the job keeps its place |
+| :--- | :--- |
+| **A loop with a progress file** (the PoC) | A customer counts as done when the whole customer is done |
+| **Checkpoints** | A [LangGraph](https://github.com/langchain-ai/langgraph) 1.2 graph with its SQLite checkpointer, defaults |
+| **A durable workflow** | A [DBOS](https://github.com/dbos-inc/dbos-transact-py) 3.6 workflow: every step's result is recorded |
+| **Durable workflow + a key per step** (what I'd build) | The same workflow, plus a key on every step that touches the world: the approval request (asked once), the refund (`Idempotency-Key`), the reply (looked up before posting) |
+
+### Results
+
+48 jobs: 4 designs × 6 crash plans (plan 0 never crashes) × 2 models (`qwen3:8b`, `gpt-oss:20b`).
+Full tables: [`results/ep04/summary.md`](results/ep04/summary.md).
+
+| With 4 crashes per job, 10 jobs each | Customers hurt | Extra refunds | Repeated replies | Approver asked again |
+| :--- | ---: | ---: | ---: | ---: |
+| Loop with a progress file | 20 | 16 ($320) | 10 | 26 |
+| Checkpoints (LangGraph, defaults) | 20 | 10 ($200) | 10 | 10 |
+| Durable workflow (DBOS) | 20 | 10 ($200) | 10 | 10 |
+| **Durable workflow + a key per step** | **0** | **0** | **0** | **0** |
+
+Without crashes all four designs got every customer right.
+
+What happened, in plain words:
+
+- **Restarting from a progress file redoes the whole customer.** A crash after the refund meant a
+  second decision, a second approval request, a second $20 and a second reply: $320 refunded twice
+  over 10 jobs, and the person approving asked 26 extra times.
+- **Checkpoints and a durable workflow stop the restart from redoing finished steps, not the step
+  that was running.** In both, exactly one crash window per job hurt a customer: the refund that went
+  through just before the crash was sent again, and so was the reply. That is how they are built:
+  a step's result is recorded after the step, so a step that dies before recording runs again.
+  A durable engine records work exactly once; it doesn't do work exactly once.
+- **A key on every step made the job exactly once.** 0 extra refunds, 0 repeated replies, 0 repeated
+  approval requests, in every crash plan, with both models, at the same speed.
+- **The model didn't change its mind.** Both models decided $20 on every rerun, and never decided
+  wrong. The progress-file loop asked the model 30 extra times (140 decisions instead of 110):
+  cost, not harm, here.
+
+### After a hard crash, which steps run again?
+
+[`scripts/ep04_checks.py`](scripts/ep04_checks.py) runs a three-step job that dies right after step
+2's work, then restarts it, 10 times per setting:
+
+| Library and setting | A step that had already finished ran again |
+| :--- | ---: |
+| DBOS | 0 / 10 (only the step that was running) |
+| LangGraph, default (`durability="async"`) | **7 / 10** |
+| LangGraph, `durability="sync"` | 0 / 10 |
+| LangGraph, `durability="exit"` | 10 / 10 |
+
+LangGraph's default writes checkpoints in the background while the next step runs; after a hard
+crash, the last one is often missing. In the month-end job with a rule instead of a model (fast
+steps), that repeated two extra replies; with a model in each step (slow steps) the background write
+finished in time. If a step has side effects, `durability="sync"` costs little.
+
+One more lesson, from a bug of mine: after a crash before LangGraph's first checkpoint,
+`get_state()` reports `next=()` while the start is still pending. My first resume code checked
+`snapshot.next` and silently skipped the whole job. Resume logic is your code too: test it by
+crashing it.
+
+### Run it
+
+```bash
+uv run --group dev pytest tests/test_ep04.py                       # no model, ~40 s
+uv run python -m scripts.ep04_checks                               # crash semantics of each library
+uv run python -m scripts.ep04_run --decider rule                   # every design and plan, no model
+uv run python -m scripts.ep04_run --models qwen3:8b                # 24 jobs with a model
+uv run python -m scripts.ep04_summary
+```
+
+### Limits
+
+- Stand-in services; the workflow libraries are the real ones.
+- Crashes are planned (`os._exit` at chosen points), so every design meets the same crash in the
+  same place. Real crashes land anywhere; the windows tested are the ones that cause harm.
+- Ten customers, five crash plans, two local models.
