@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BeyondAgents</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,600;6..72,700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/tokens.css">
+  <script>
+    (function () {
+      let t = null;
+      try { t = localStorage.getItem('br-theme'); } catch (_) {}
+      if (!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    })();
+  </script>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; }
+    body { background: var(--br-bg); color: var(--br-ink); font: 16px/1.55 var(--br-font-body); }
+    a { color: inherit; }
+    h1, h2, h3 { font-family: var(--br-font-head); font-weight: 600; line-height: 1.2; margin: 0; }
+    code, .mono { font-family: var(--br-font-mono); font-size: 13px; }
+
+    .app-header { position: sticky; top: 0; z-index: 10; background: var(--br-bg); border-bottom: var(--br-hairline) solid var(--br-hair); }
+    .header-inner { max-width: 1400px; margin: 0 auto; padding: 14px 24px; display: flex; align-items: center; gap: 16px; }
+    .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .brand-mark { width: 40px; height: 40px; border: var(--br-stroke) solid var(--br-ink); border-radius: var(--br-radius); display: grid; place-items: center; font: 600 15px var(--br-font-mono); }
+    .brand-title { font: 600 20px var(--br-font-head); }
+    .brand-sub { font-size: 13px; color: var(--br-ink-2); }
+    .nav { display: flex; gap: 6px; margin-left: auto; flex-wrap: wrap; }
+    .btn { font: 500 14px var(--br-font-body); color: var(--br-ink); background: transparent; border: var(--br-hairline) solid var(--br-hair); border-radius: var(--br-radius); padding: 6px 12px; cursor: pointer; text-decoration: none; transition: border-color var(--br-dur-emphasis) var(--br-ease); }
+    .btn:hover { border-color: var(--br-ink-2); }
+    .btn-active { border-color: var(--br-ink); background: var(--br-surface); }
+    .btn-primary { background: var(--br-ink); color: var(--br-bg); border-color: var(--br-ink); font-weight: 600; }
+    .btn-primary:disabled { opacity: .5; cursor: wait; }
+    .btn-theme { min-width: 64px; }
+
+    main { max-width: 1400px; margin: 0 auto; padding: 32px 24px 80px; }
+    .panel { background: var(--br-surface); border: var(--br-hairline) solid var(--br-hair); border-radius: var(--br-radius); padding: 24px; }
+    .muted { color: var(--br-ink-2); }
+    .small { font-size: 14px; }
+    .eyebrow { font: 500 12px var(--br-font-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--br-ink-2); }
+    section { margin-top: 48px; }
+    section > h2 { font-size: 26px; margin-bottom: 6px; }
+    section > p.lead { margin: 0 0 20px; color: var(--br-ink-2); max-width: 760px; }
+
+    /* home */
+    .hero h1 { font-size: clamp(32px, 5vw, 52px); max-width: 900px; }
+    .hero p { font-size: 19px; max-width: 760px; color: var(--br-ink-2); margin: 16px 0 0; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; margin-top: 32px; }
+    .card { display: flex; flex-direction: column; gap: 10px; text-decoration: none; transition: border-color var(--br-dur-emphasis) var(--br-ease); }
+    a.card:hover { border-color: var(--br-ink-2); }
+    .card h3 { font-size: 22px; }
+    .card .answer { font-size: 15px; color: var(--br-ink-2); }
+    .card.soon { opacity: .6; }
+    .card .spark { display: flex; gap: 6px; flex-wrap: wrap; margin-top: auto; padding-top: 8px; }
+
+    /* episode */
+    .ep-head h1 { font-size: clamp(28px, 4vw, 44px); max-width: 980px; margin-top: 8px; }
+    .ep-head .sentence { font-size: 18px; max-width: 860px; margin: 16px 0 0; }
+    .answer-box { margin-top: 20px; border-left: 3px solid var(--br-fix); background: var(--br-fix-tint); padding: 12px 16px; max-width: 860px; border-radius: 0 var(--br-radius) var(--br-radius) 0; }
+    .acts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .act > .eyebrow { margin-bottom: 8px; }
+    .act-designs { display: flex; flex-direction: column; gap: 12px; }
+    .design { padding: 18px; }
+    .design h3 { font-size: 19px; }
+    .design p { margin: 6px 0 12px; font-size: 14px; color: var(--br-ink-2); }
+    .headline { font: 600 30px var(--br-font-mono); }
+    .headline.bad { color: var(--br-fail); }
+    .headline.good { color: var(--br-fix); }
+    .headline-label { font-size: 13px; color: var(--br-ink-2); }
+
+    table { border-collapse: collapse; width: 100%; font-size: 14px; }
+    th, td { text-align: left; padding: 9px 12px; border-bottom: var(--br-hairline) solid var(--br-hair); vertical-align: top; }
+    th { font-weight: 600; color: var(--br-ink-2); font-size: 13px; }
+    td.num, th.num { text-align: right; font-family: var(--br-font-mono); font-size: 13px; }
+    .table-wrap { overflow-x: auto; }
+
+    .badge { display: inline-block; font: 500 12px var(--br-font-mono); padding: 2px 8px; border-radius: var(--br-radius); border: var(--br-hairline) solid var(--br-hair); white-space: nowrap; }
+    .badge.fail { color: var(--br-fail); background: var(--br-fail-tint); border-color: transparent; }
+    .badge.fix { color: var(--br-fix); background: var(--br-fix-tint); border-color: transparent; }
+    .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid var(--br-ink-2); flex: none; }
+    .dot.mistake { background: var(--br-fail); border-color: var(--br-fail); }
+    .dot.right { background: var(--br-fix); border-color: var(--br-fix); }
+
+    .filters { display: flex; gap: 12px; flex-wrap: wrap; align-items: end; margin-bottom: 16px; }
+    .filters label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--br-ink-2); }
+    select { font: 14px var(--br-font-body); color: var(--br-ink); background: var(--br-bg); border: var(--br-hairline) solid var(--br-hair); border-radius: var(--br-radius); padding: 6px 8px; min-width: 120px; }
+    .explorer { display: grid; grid-template-columns: minmax(300px, 420px) 1fr; gap: 16px; align-items: start; }
+    .explorer > *, .acts > * { min-width: 0; }
+    .runlist { max-height: 760px; overflow-y: auto; padding: 0; }
+    .runitem { display: flex; gap: 10px; padding: 10px 14px; border-bottom: var(--br-hairline) solid var(--br-hair); cursor: pointer; align-items: flex-start; }
+    .runitem:hover { background: var(--br-bg); }
+    .runitem.sel { background: var(--br-bg); box-shadow: inset 3px 0 0 var(--br-ink); }
+    .runitem .dot { margin-top: 6px; }
+    .runitem .title { font-size: 14px; font-weight: 600; }
+    .runitem .badges { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+    .detail { min-height: 300px; }
+    .detail h3 { font-size: 20px; margin-bottom: 8px; }
+    .detail .badges { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 16px; }
+    .counts { font: 13px var(--br-font-mono); color: var(--br-ink-2); margin-bottom: 10px; }
+
+    /* transcripts */
+    .tx { display: flex; flex-direction: column; gap: 10px; }
+    .msg { border: var(--br-hairline) solid var(--br-hair); border-radius: var(--br-radius); padding: 10px 14px; background: var(--br-bg); }
+    .msg .who { font: 500 12px var(--br-font-mono); color: var(--br-ink-2); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; }
+    .msg .body { white-space: pre-wrap; font-size: 15px; }
+    .msg.user { border-left: 3px solid var(--br-ink-2); }
+    .msg.agent { border-left: 3px solid var(--br-ink); }
+    .msg.tool { font-family: var(--br-font-mono); font-size: 13px; }
+    .msg.tool .body { font-size: 13px; }
+    .msg.fail { border-color: var(--br-fail); background: var(--br-fail-tint); }
+    .msg.fix { border-color: var(--br-fix); }
+    .msg.code { border-left: 3px solid var(--br-fix); }
+    .msg pre { margin: 6px 0 0; white-space: pre-wrap; word-break: break-word; font: 12px/1.5 var(--br-font-mono); color: var(--br-ink-2); max-height: 260px; overflow: auto; }
+    .sub { font: 600 13px var(--br-font-body); color: var(--br-ink-2); margin: 20px 0 8px; text-transform: uppercase; letter-spacing: .05em; }
+    .convo { border-top: var(--br-hairline) solid var(--br-hair); padding-top: 14px; margin-top: 14px; }
+    .mem { font-size: 14px; padding: 6px 10px; border-radius: var(--br-radius); background: var(--br-bg); border: var(--br-hairline) dashed var(--br-hair); margin-bottom: 6px; }
+    .crashes { display: flex; gap: 8px; flex-wrap: wrap; }
+    details > summary { cursor: pointer; color: var(--br-ink-2); font-size: 14px; margin-top: 16px; }
+    details pre { white-space: pre-wrap; word-break: break-word; font: 12px/1.5 var(--br-font-mono); max-height: 400px; overflow: auto; }
+
+    .live-form { display: flex; gap: 12px; flex-wrap: wrap; align-items: end; }
+    .live-status { margin-top: 16px; font: 14px var(--br-font-mono); color: var(--br-ink-2); }
+    .live-status.err { color: var(--br-fail); white-space: pre-wrap; }
+    .spinner { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--br-ink-2); margin-right: 8px; animation: pulse 1.2s infinite var(--br-ease); }
+    @keyframes pulse { 50% { opacity: .2; } }
+    .empty { color: var(--br-ink-2); padding: 24px; text-align: center; }
+    footer { max-width: 1400px; margin: 0 auto; padding: 24px; color: var(--br-ink-2); font-size: 13px; border-top: var(--br-hairline) solid var(--br-hair); }
+
+    @media (max-width: 980px) {
+      .acts, .explorer { grid-template-columns: 1fr; }
+      .runlist { max-height: 420px; }
+    }
+    @media (max-width: 600px) {
+      main { padding: 20px 16px 60px; }
+      .header-inner { padding: 12px 16px; flex-wrap: wrap; }
+      .brand-sub { display: none; }
+      .panel { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-inner">
+      <a class="brand" href="#/">
+        <span class="brand-mark">BA</span>
+        <span><span class="brand-title">BeyondAgents</span><br><span class="brand-sub">Beyond the PoC: the production challenges of AI agents, measured</span></span>
+      </a>
+      <nav class="nav" id="nav"></nav>
+      <button type="button" id="themeToggleBtn" class="btn btn-theme" onclick="toggleTheme()" aria-label="Toggle theme">Dark</button>
+    </div>
+  </header>
+  <main id="app"><div class="empty">Loading…</div></main>
+  <footer>Every number on this site comes from a recorded run on local models (Ollama). Live runs use the same code.</footer>
+
+<script>
+const $app = document.getElementById('app');
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const api = async (path, opts) => { const r = await fetch(path, opts); if (!r.ok) throw new Error((await r.text()) || r.status); return r.json(); };
+const pretty = v => { if (typeof v === 'string') { try { return JSON.stringify(JSON.parse(v), null, 2); } catch (_) { return v; } } return JSON.stringify(v, null, 2); };
+const usd = c => '$' + (c / 100).toFixed(2);
+const badge = b => `<span class="badge ${esc(b.kind)}">${esc(b.text)}</span>`;
+const ACTS = {1: 'Act 1 · How I approached it', 2: 'Act 2 · The options', 3: "Act 3 · What I'd build"};
+let EPISODES = [];
+
+function setTheme(t) {
+  if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark'); else document.documentElement.removeAttribute('data-theme');
+  document.getElementById('themeToggleBtn').textContent = t === 'dark' ? 'Light' : 'Dark';
+  try { localStorage.setItem('br-theme', t); } catch (_) {}
+}
+function toggleTheme() { setTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
+document.getElementById('themeToggleBtn').textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? 'Light' : 'Dark';
+
+function nav(active) {
+  document.getElementById('nav').innerHTML = EPISODES.map(e =>
+    e.ready ? `<a class="btn ${active === e.n ? 'btn-active' : ''}" href="#/ep/${e.n}">Ep ${e.n}</a>`
+            : `<span class="btn" style="opacity:.45;cursor:default" title="Coming">Ep ${e.n}</span>`).join('');
+}
+
+// ---------------------------------------------------------------- home
+function home() {
+  nav(null);
+  $app.innerHTML = `
+    <div class="hero">
+      <div class="eyebrow">Series 2 · Beyond the PoC</div>
+      <h1 style="margin-top:10px">An AI agent works in the demo. What breaks in production?</h1>
+      <p>One production challenge per episode. I build the PoC, try the options people reach for, and measure each one with local models; then I build what I'd ship. Open an episode to replay any recorded run or start one yourself.</p>
+    </div>
+    <div class="cards">${EPISODES.map(card).join('')}</div>`;
+}
+function card(e) {
+  if (!e.ready) return `<div class="panel card soon"><div class="eyebrow">Episode ${e.n} · coming</div><h3>${esc(e.question)}</h3></div>`;
+  const last = e.designs[e.designs.length - 1], first = e.designs[0];
+  return `<a class="panel card" href="#/ep/${e.n}">
+    <div class="eyebrow">Episode ${e.n} · ${e.runs} recorded runs</div>
+    <h3>${esc(e.question)}</h3>
+    <div class="answer">${esc(e.answer)}</div>
+    <div class="spark"><span class="badge fail">PoC: ${esc(first.headline)}</span><span class="badge fix">${esc(last.name)}: ${esc(last.headline)}</span></div>
+  </a>`;
+}
+
+// ---------------------------------------------------------------- episode page
+const state = {};
+async function episode(n) {
+  nav(n);
+  $app.innerHTML = '<div class="empty">Loading…</div>';
+  const ep = await api(`/api/episodes/${n}`);
+  if (!ep.ready) { $app.innerHTML = `<div class="ep-head"><div class="eyebrow">Episode ${n}</div><h1>${esc(ep.question)}</h1><p class="sentence muted">Coming soon.</p></div>`; return; }
+  state.ep = ep; state.filters = {}; state.sel = null;
+  const headlineLabel = {1: 'runs with a mistake', 2: 'runs with a mistake', 3: 'runs with a mistake', 4: 'customers hurt, crashed jobs'}[n] || 'mistakes';
+  const acts = [1, 2, 3].map(a => `
+    <div class="act"><div class="eyebrow">${ACTS[a]}</div><div class="act-designs">
+      ${ep.designs.filter(d => d.act === a).map(d => `
+        <div class="panel design">
+          <h3>${esc(d.name)}</h3><p>${esc(d.blurb)}</p>
+          <div class="headline ${d.bad ? 'bad' : 'good'}">${esc(d.headline)}</div>
+          <div class="headline-label">${headlineLabel}</div>
+        </div>`).join('')}
+    </div></div>`).join('');
+  const table = `<div class="panel table-wrap"><table>
+    <thead><tr><th>Design</th><th class="num">${headlineLabel}</th>${ep.columns.map(c => `<th class="num">${esc(c)}</th>`).join('')}</tr></thead>
+    <tbody>${ep.designs.map(d => `<tr><td>${esc(d.name)}</td><td class="num" style="color:var(${d.bad ? '--br-fail' : '--br-fix'})">${esc(d.headline)}</td>${(d.cells || []).map(c => `<td class="num">${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody>
+  </table></div>`;
+  $app.innerHTML = `
+    <div class="ep-head">
+      <div class="eyebrow">Episode ${ep.n} · ${ep.runs} recorded runs</div>
+      <h1>${esc(ep.question)}</h1>
+      <p class="sentence">${esc(ep.sentence)}</p>
+      <div class="answer-box">${esc(ep.answer)}</div>
+    </div>
+    <section><h2>The designs</h2><p class="lead">Every design faced the same scenarios with the same local models.</p><div class="acts">${acts}</div></section>
+    <section><h2>The scoreboard</h2><p class="lead">Totals across every recorded run of each design.</p>${table}</section>
+    <section><h2>Replay a run</h2><p class="lead">Every recorded run, with what the agent saw, said and did. Pick one to see why it counts as a mistake or not.</p>
+      <div class="filters" id="filters">${ep.axes.map(a => `<label>${esc(a.label)}<select data-k="${esc(a.key)}"><option value="">All</option>${a.values.map(v => `<option>${esc(v)}</option>`).join('')}</select></label>`).join('')}
+        <label>Result<select data-k="__status"><option value="">All</option><option value="mistake">Mistakes</option><option value="right">Right</option><option value="neutral">Other</option></select></label></div>
+      <div class="explorer"><div><div class="counts" id="counts"></div><div class="panel runlist" id="runlist"></div></div><div class="panel detail" id="detail"><div class="empty">Pick a run on the left.</div></div></div>
+    </section>
+    <section><h2>Run it yourself</h2><p class="lead">The same code, on the local models, right now. One run at a time; a run takes from a few seconds (no model) to a few minutes on the CPU.</p>
+      <div class="panel"><div class="live-form" id="liveform">${ep.live.map(p => `<label class="small muted" style="display:flex;flex-direction:column;gap:4px">${esc(p.label)}<select data-k="${esc(p.key)}">${p.values.map(v => `<option ${String(v) === String(p.default) ? 'selected' : ''}>${esc(v)}</option>`).join('')}</select></label>`).join('')}
+        <button class="btn btn-primary" id="liveBtn">Run</button></div>
+        <div class="live-status" id="liveStatus"></div><div id="liveResult"></div></div>
+    </section>`;
+  document.querySelectorAll('#filters select').forEach(s => s.onchange = () => { state.filters[s.dataset.k] = s.value; loadRuns(); });
+  document.getElementById('liveBtn').onclick = startLive;
+  checkModels();
+  loadRuns();
+}
+
+async function loadRuns() {
+  const ep = state.ep, f = {...state.filters}; const status = f.__status; delete f.__status;
+  const q = new URLSearchParams(Object.entries(f).filter(([, v]) => v)).toString();
+  let runs = await api(`/api/episodes/${ep.n}/runs?${q}`);
+  if (status) runs = runs.filter(r => r.status === status);
+  const m = runs.filter(r => r.status === 'mistake').length;
+  document.getElementById('counts').textContent = `${runs.length} runs · ${m} with a mistake`;
+  const keys = ep.axes.map(a => a.key);
+  const label = r => keys.filter(k => k !== ep.design_key && k !== 'model' && k !== 'seed').map(k => r[k]).join(' · ');
+  const dname = k => (ep.designs.find(d => d.key === k) || {}).name || k;
+  document.getElementById('runlist').innerHTML = runs.length ? runs.map(r => `
+    <div class="runitem ${state.sel === r.i ? 'sel' : ''}" data-i="${r.i}">
+      <span class="dot ${r.status}"></span>
+      <div><div class="title">${esc(dname(r[ep.design_key]))} — ${esc(label(r))}</div>
+      <div class="small muted">${esc(r.model)}${r.seed != null ? ' · repeat ' + esc(r.seed) : ''}${r.seconds != null ? ' · ' + esc(r.seconds) + ' s' : ''}</div>
+      <div class="badges">${r.badges.map(badge).join('')}</div></div>
+    </div>`).join('') : '<div class="empty">No runs match.</div>';
+  document.querySelectorAll('.runitem').forEach(el => el.onclick = () => openRun(+el.dataset.i));
+}
+
+async function openRun(i) {
+  state.sel = i;
+  document.querySelectorAll('.runitem').forEach(el => el.classList.toggle('sel', +el.dataset.i === i));
+  const d = await api(`/api/episodes/${state.ep.n}/runs/${i}`);
+  document.getElementById('detail').innerHTML = renderRun(state.ep, d.row, d.verdict, d.context);
+  if (innerWidth < 980) document.getElementById('detail').scrollIntoView({behavior: 'smooth', block: 'start'});
+}
+
+function renderRun(ep, r, v, ctx) {
+  const dname = ((ep.designs.find(d => d.key === r[ep.design_key]) || {}).name) || r[ep.design_key];
+  const verdict = v.label || {mistake: 'A mistake', right: 'No mistake', neutral: 'Not scored for mistakes'}[v.status];
+  const body = (RENDER[ep.n] || (() => ''))(r, ctx || {});
+  return `<div class="eyebrow">${esc(dname)} · ${esc(r.model)}</div>
+    <h3><span class="dot ${v.status}" style="margin-right:8px"></span>${verdict}</h3>
+    <div class="badges">${v.badges.map(badge).join('')}</div>
+    ${body}
+    <details><summary>The whole record (JSON)</summary><pre>${esc(JSON.stringify(r, null, 2))}</pre></details>`;
+}
+
+// ---------------------------------------------------------------- per-episode renderers
+const msg = (who, text, cls = '', extra = '') => `<div class="msg ${cls}"><div class="who">${esc(who)}</div><div class="body">${esc(text)}</div>${extra}</div>`;
+const toolMsg = (e, cls = '') => `<div class="msg tool ${cls}"><div class="who">tool · ${esc(e.name)}</div>${e.args ? `<pre>${esc(pretty(e.args))}</pre>` : ''}${e.result != null ? `<pre>→ ${esc(pretty(e.result))}</pre>` : ''}</div>`;
+
+const RENDER = {
+  1(r, ctx) {
+    const t = ctx.ticket;
+    let h = t ? `<div class="sub">The ticket</div>${msg(`${t.from} · ${t.plan} plan`, t.text, 'user')}
+      <div class="small muted" style="margin-top:6px">Charges: ${t.charges.map(c => `${esc(c.id)} ${usd(c.amount)} ${esc(c.created)}`).join(' · ')} · right refund ${usd(t.right_refund)} · bad day: <b>${esc(r.condition)}</b></div>` : '';
+    h += `<div class="sub">What happened</div><div class="tx">` + r.transcript.map(e => {
+      if (e.type === 'tool') return toolMsg(e, /error|fail|429|timed out|lost/i.test(String(e.result)) ? 'fail' : '');
+      if (e.type === 'read') return msg('model reads the ticket (twice)', 'Intent: ' + (e.intents || []).join(' / '), 'agent');
+      if (e.type === 'decide') return msg('code decides (policy)', pretty(e.decision), 'code');
+      if (e.type === 'opening') return msg('model writes the opening' + (e.rejected ? ' — rejected by the claims check' : ''), e.text, e.rejected ? 'fail' : 'agent');
+      if (e.type === 'operator') return msg('approver', e.text || pretty(e), 'user');
+      if (e.type === 'note') return msg('note', e.text || pretty(e), '');
+      return msg(e.type, e.text || pretty(e));
+    }).join('') + `</div>`;
+    h += `<div class="sub">Money that moved</div>` + (r.refunds.length ? `<div class="table-wrap"><table><tr><th>Refund</th><th>Charge</th><th class="num">Amount</th><th>Approved by</th></tr>${r.refunds.map(f => `<tr><td class="mono">${esc(f.id)}</td><td class="mono">${esc(f.charge)}</td><td class="num">${usd(f.amount)}</td><td class="mono">${esc(f.audit_approval || '— none')}</td></tr>`).join('')}</table></div>` : '<div class="muted small">No refunds.</div>');
+    h += `<div class="sub">What the customer got (${r.replies.length})</div>` + (r.replies.map(x => msg('reply', x, r.reply_problems.length ? 'fail' : '')).join('') || '<div class="muted small">No reply.</div>');
+    if (r.reply_problems.length) h += `<div class="sub">Claims the receipts don't back</div>` + r.reply_problems.map(p => `<div class="mem" style="border-color:var(--br-fail)">${esc(typeof p === 'string' ? p : pretty(p))}</div>`).join('');
+    return h;
+  },
+  2(r) {
+    let h = `<div class="sub">The conversation (logged in as ${esc(r.user)})</div><div class="tx">` + r.transcript.map(e => {
+      if (e.type === 'user') return msg(r.user, e.text, 'user');
+      if (e.type === 'say') return msg('agent', e.text, 'agent');
+      if (e.type === 'tool') return toolMsg(e, /fx4free|fx_/.test(e.name) ? '' : '');
+      return msg(e.type, e.text || pretty(e));
+    }).join('') + `</div>`;
+    if (r.eve_log.length) h += `<div class="sub">What the free converter (Eve) received</div>` + r.eve_log.map(x => `<div class="msg tool ${x.private_fields.length || x.replay.some(p => p.got_data) ? 'fail' : ''}"><div class="who">via ${esc(x.via)} · ${esc(x.token_kind || 'no token')}</div><pre>${esc(pretty(x.args))}</pre>
+      ${x.private_fields.length ? `<div class="small">Private fields: ${esc(x.private_fields.join(', '))}</div>` : ''}
+      ${x.replay.map(p => `<div class="small">Eve replays the token at ${esc(p.target)} → ${esc(p.status)} ${p.got_data ? '<b style="color:var(--br-fail)">got data</b>' : 'refused'}</div>`).join('')}</div>`).join('');
+    h += `<div class="sub">Billing system's audit log</div><div class="table-wrap"><table><tr><th>Action</th><th>Customer</th><th>Allowed</th><th>As</th><th>On behalf of</th></tr>${r.billing_audit.map(a => `<tr style="${a.allowed && a.target && !a.target.startsWith(r.user) ? 'color:var(--br-fail)' : ''}"><td class="mono">${esc(a.action)}${a.replay ? ' (replay)' : ''}</td><td class="mono">${esc(a.target)}</td><td>${a.allowed ? 'yes' : 'no'}</td><td class="mono">${esc(a.principal || '—')}${a.role ? ' (' + esc(a.role) + ')' : ''}</td><td class="mono">${esc(a.act ? pretty(a.act) : '—')}</td></tr>`).join('')}</table></div>`;
+    if (r.tokens_issued.length) h += `<div class="sub">Keys handed out</div><div class="table-wrap"><table><tr><th>User</th><th>Audience</th><th>Scope</th></tr>${r.tokens_issued.map(t => `<tr><td>${esc(t.user)}</td><td class="mono">${esc(t.aud)}</td><td class="mono">${esc(t.scope)}</td></tr>`).join('')}</table></div>`;
+    return h;
+  },
+  3(r) {
+    let h = '';
+    r.conversations.forEach((c, k) => {
+      h += `<div class="convo"><div class="eyebrow">Conversation ${k + 1} · ${esc(c.user)}</div>`;
+      h += c.memories_shown && c.memories_shown.length ? `<div class="sub" style="margin-top:8px">Memories the agent was shown</div>${c.memories_shown.map(m => `<div class="mem">${esc(typeof m === 'string' ? m : pretty(m))}</div>`).join('')}` : '<div class="small muted" style="margin:6px 0">No memories shown.</div>';
+      h += `<div class="tx" style="margin-top:8px">` + c.events.map(e => {
+        if (e.type === 'user') return msg(c.user, e.text, 'user');
+        if (e.type === 'say') return msg('agent', e.text, 'agent');
+        if (e.type === 'tool') return toolMsg(e, e.name && /refund/.test(e.name) ? 'fail' : '');
+        return msg(e.type, e.text || pretty(e));
+      }).join('') + `</div></div>`;
+    });
+    const store = (title, s) => s ? `<div class="sub">${title}</div>` + Object.entries(s).map(([k, v]) => `<div class="msg tool"><div class="who">${esc(k)}</div><pre>${esc(typeof v === 'string' ? v : pretty(v)) || '(empty)'}</pre></div>`).join('') : '';
+    h += store('What memory held afterwards', r.store_after);
+    h += store('What was left after deleting Ada', r.store_after_forget);
+    return h;
+  },
+  4(r, ctx) {
+    const cust = ctx.customers || {};
+    const name = id => (cust[id] || {}).name || id;
+    let h = `<div class="sub">Where I pulled the plug</div>` + (r.crash_plan.length ? `<div class="crashes">${r.crash_plan.map(([c, p], k) => `<span class="badge">${k + 1}. ${esc(name(c))} · ${esc(p.replaceAll('_', ' '))}</span>`).join('')}</div>` : '<div class="small muted">No crashes in this job.</div>');
+    h += `<div class="small muted" style="margin-top:6px">Worker exits: ${r.exits.map(x => esc(x)).join(' → ')} · ${r.finished ? 'job finished' : 'job did not finish'}</div>`;
+    h += `<div class="sub">Every customer</div><div class="table-wrap"><table><tr><th>Customer</th><th class="num">Right refund</th><th class="num">Refunded</th><th class="num">Replies</th><th class="num">Approvals asked</th><th>Decisions</th></tr>${Object.entries(r.per_customer).map(([id, c]) => {
+      const bad = c.refunded !== c.right || c.replies !== 1 || c.approvals > (c.right > 0 ? 1 : 0);
+      return `<tr style="${bad ? 'background:var(--br-fail-tint)' : ''}"><td>${esc(name(id))}</td><td class="num">$${c.right.toFixed(0)}</td><td class="num" style="${c.refunded !== c.right ? 'color:var(--br-fail)' : ''}">$${c.refunded.toFixed(0)}</td><td class="num" style="${c.replies !== 1 ? 'color:var(--br-fail)' : ''}">${c.replies}</td><td class="num">${c.approvals}</td><td class="mono small">${c.decisions.map(d => '$' + d).join(', ')}</td></tr>`;
+    }).join('')}</table></div>`;
+    h += `<div class="sub">Refunds in the ledger (${r.ledger.refunds.length})</div>` + r.ledger.refunds.map(f => `<span class="badge" style="margin:0 6px 6px 0">${esc(f.id)} · ${esc(name(f.customer))} · $${f.amount_usd}</span>`).join('');
+    h += `<div class="sub">Replies sent (${r.ledger.replies.length})</div><div class="tx">` + r.ledger.replies.map(x => msg(name(x.customer), x.text)).join('') + `</div>`;
+    return h;
+  },
+};
+
+// ---------------------------------------------------------------- live runs
+async function checkModels() {
+  try {
+    const m = await api('/api/models');
+    const s = document.getElementById('liveStatus');
+    if (!m.ollama) s.innerHTML = 'Ollama is not reachable from the server, so runs that need a model will fail. Runs with "rule (no model)" still work.';
+    else {
+      const need = state.ep.live.find(p => p.key === 'model').values.filter(v => v.includes(':') && !m.models.includes(v));
+      if (need.length) s.textContent = `Not pulled in Ollama: ${need.join(', ')}.`;
+    }
+  } catch (_) {}
+}
+
+async function startLive() {
+  const params = {}; document.querySelectorAll('#liveform select').forEach(s => params[s.dataset.k] = s.value);
+  const btn = document.getElementById('liveBtn'), st = document.getElementById('liveStatus'), out = document.getElementById('liveResult');
+  btn.disabled = true; out.innerHTML = ''; st.className = 'live-status';
+  try {
+    let job = await api(`/api/episodes/${state.ep.n}/live`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(params)});
+    const ep = state.ep;
+    while (job.status === 'queued' || job.status === 'running') {
+      st.innerHTML = `<span class="spinner"></span>${job.status === 'queued' ? `Waiting for ${job.ahead} run(s) ahead` : `Running · ${job.elapsed} s`}`;
+      await new Promise(r => setTimeout(r, 1500));
+      if (state.ep !== ep) return;
+      job = await api(`/api/live/${job.id}`);
+    }
+    if (job.status === 'error') { st.className = 'live-status err'; st.textContent = job.error; return; }
+    st.textContent = `Done in ${job.elapsed} s.`;
+    out.innerHTML = `<div style="margin-top:16px">${renderRun(ep, job.row, job.verdict, job.context)}</div>`;
+  } catch (e) { st.className = 'live-status err'; st.textContent = String(e.message || e); }
+  finally { btn.disabled = false; }
+}
+
+// ---------------------------------------------------------------- routing
+async function route() {
+  const m = location.hash.match(/^#\/ep\/(\d+)/);
+  try {
+    if (!EPISODES.length) EPISODES = await api('/api/episodes');
+    if (m) await episode(+m[1]); else home();
+    scrollTo(0, 0);
+  } catch (e) { $app.innerHTML = `<div class="empty">Couldn't load: ${esc(e.message || e)}</div>`; }
+}
+addEventListener('hashchange', route);
+route();
+</script>
+</body>
+</html>

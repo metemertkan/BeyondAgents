@@ -1,0 +1,17 @@
+# The BeyondAgents site: every episode's recorded runs, and live runs on the host's Ollama.
+#   docker compose up -d --build      # http://localhost:8092
+services:
+  beyondagents-web:
+    build: .
+    container_name: beyondagents-web
+    ports:
+      - "${BEYONDAGENTS_PORT:-8092}:8092"
+    environment:
+      OLLAMA_BASE_URL: ${OLLAMA_DOCKER_BASE_URL:-http://host.docker.internal:11434}
+      MEM0_TELEMETRY: "False"
+      RESULTS_DIR: /app/results
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./results:/app/results:ro
+    restart: unless-stopped

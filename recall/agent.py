@@ -6,6 +6,7 @@ Penny ("things you remember") and which memory tools she has are the only differ
 from __future__ import annotations
 
 import json
+import os
 import time
 import urllib.error
 import urllib.request
@@ -13,7 +14,7 @@ import urllib.request
 from recall.data import CUSTOMERS, POLICY
 from recall.world import COMMON_TOOLS, World
 
-OLLAMA = "http://localhost:11434/api/chat"
+OLLAMA = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434").rstrip("/") + "/api/chat"
 
 SYSTEM = ("You are Penny, the AI assistant in Acme Cloud's customer portal.\n"
           "The logged-in user is {name} <{email}>, a customer.\n{policy}\n{instructions}\n"

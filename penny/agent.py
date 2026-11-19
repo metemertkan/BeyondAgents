@@ -6,6 +6,7 @@ relies on; the production executor enforces them in code whatever the model does
 from __future__ import annotations
 
 import json
+import os
 import time
 import urllib.error
 import urllib.request
@@ -13,7 +14,7 @@ import urllib.request
 from penny.tickets import Ticket
 from penny.tools import TOOLS
 
-OLLAMA = "http://localhost:11434/api/chat"
+OLLAMA = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434").rstrip("/") + "/api/chat"
 
 SYSTEM = (
     "You are Penny, the AI support agent of Acme Cloud, a SaaS company.\n"

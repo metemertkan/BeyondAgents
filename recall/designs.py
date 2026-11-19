@@ -22,6 +22,7 @@ import tempfile
 import time
 
 os.environ.setdefault("MEM0_TELEMETRY", "False")   # nothing leaves the machine
+OLLAMA_BASE = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434").rstrip("/")
 
 from recall.data import CUSTOMERS
 
@@ -102,9 +103,9 @@ class _Mem0(Design):
         self.history_path = os.path.join(self.dir, "history.db")
         self.memory = Memory.from_config({
             "llm": {"provider": "ollama", "config": {"model": memory_model, "temperature": 0.1, "max_tokens": 2000,
-                                                     "ollama_base_url": "http://localhost:11434"}},
+                                                     "ollama_base_url": OLLAMA_BASE}},
             "embedder": {"provider": "ollama", "config": {"model": "bge-m3", "embedding_dims": 1024,
-                                                          "ollama_base_url": "http://localhost:11434"}},
+                                                          "ollama_base_url": OLLAMA_BASE}},
             "vector_store": {"provider": "qdrant", "config": {"collection_name": "penny", "embedding_model_dims": 1024,
                                                               "path": os.path.join(self.dir, "qdrant"), "on_disk": True}},
             "history_db_path": self.history_path})

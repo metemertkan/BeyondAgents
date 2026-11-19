@@ -24,7 +24,7 @@ import httpx
 
 from month_end.data import BY_ID, CUSTOMERS, right_refund
 
-OLLAMA = "http://localhost:11434/api/chat"
+OLLAMA = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434").rstrip("/") + "/api/chat"
 JOB = "november-overcharge"
 THINK = {"qwen3:8b": False, "gpt-oss:20b": "medium"}
 

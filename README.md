@@ -18,6 +18,25 @@ stand-ins for the APIs the agent talks to. No accounts, no keys.
 | 3 | Can one customer teach your AI agent a bad habit, for everyone? | [`recall/`](recall), [`scripts/ep03_run.py`](scripts/ep03_run.py) |
 | 4 | What happens when your AI agent crashes halfway through a job? | [`month_end/`](month_end), [`scripts/ep04_run.py`](scripts/ep04_run.py) |
 
+## The site
+
+Every episode on one page each: the designs act by act, the scoreboard, every recorded run to
+replay (what the agent saw, said and did, and why it counts as a mistake or not), and a form to
+start a run yourself on your local models.
+
+```bash
+docker compose up -d --build        # http://localhost:8092
+# or without Docker:
+uv run python -m web
+```
+
+The container reads `results/` read-only and reaches Ollama on the host at
+`host.docker.internal:11434` (set `OLLAMA_DOCKER_BASE_URL` to change it, `BEYONDAGENTS_PORT` to
+change the port). Live runs go one at a time, because they share the CPU with the model. Episode
+4's live runs can skip the model ("rule (no model)") and take about 10 seconds. A new episode is
+one entry in [`web/episodes.py`](web/episodes.py) and one transcript renderer in
+[`web/static/index.html`](web/static/index.html).
+
 ## Episode 1: Penny and the refund button
 
 Penny is the AI support agent of Acme Cloud, a made-up SaaS company. She reads billing tickets,

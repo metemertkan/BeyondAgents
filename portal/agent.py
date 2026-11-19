@@ -6,13 +6,14 @@ from __future__ import annotations
 
 import asyncio
 import json
+import os
 import time
 import urllib.error
 import urllib.request
 
 from portal.data import USERS
 
-OLLAMA = "http://localhost:11434/api/chat"
+OLLAMA = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434").rstrip("/") + "/api/chat"
 
 
 def system_prompt(user: str) -> str:
