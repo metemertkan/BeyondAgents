@@ -15,6 +15,9 @@ dependencies = [
     "utcp-cli>=1.1.5",
     "mem0ai==2.2.1",
     "ollama>=0.6.3",
+    "langgraph>=1.2.22",
+    "langgraph-checkpoint-sqlite>=3.1.3",
+    "dbos>=3.6.0",
 ]
 
 [dependency-groups]

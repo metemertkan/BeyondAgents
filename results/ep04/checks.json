@@ -1,0 +1,36 @@
+{
+  "crash_semantics": [
+    {
+      "library": "DBOS",
+      "outcomes": {
+        "step1 step2 step2 step3": 10
+      }
+    },
+    {
+      "library": "LangGraph, durability=default",
+      "outcomes": {
+        "step1 step2 step1 step2 step3": 7,
+        "step1 step2 step2 step3": 3
+      }
+    },
+    {
+      "library": "LangGraph, durability=async",
+      "outcomes": {
+        "step1 step2 step1 step2 step3": 6,
+        "step1 step2 step2 step3": 4
+      }
+    },
+    {
+      "library": "LangGraph, durability=sync",
+      "outcomes": {
+        "step1 step2 step2 step3": 10
+      }
+    },
+    {
+      "library": "LangGraph, durability=exit",
+      "outcomes": {
+        "step1 step2 step1 step2 step3": 10
+      }
+    }
+  ]
+}
