@@ -40,7 +40,8 @@ def _replied(transcript: list[dict]) -> bool:
     return False
 
 
-def chat(model: str, messages: list[dict], seed: int, think, server_errors: list[str]) -> dict:
+def chat(model: str, messages: list[dict], seed: int, think, server_errors: list[str],
+         usage: list[dict] | None = None) -> dict:
     for attempt in range(3):
         body = {"model": model, "messages": messages, "tools": TOOLS, "stream": False, "think": think,
                 "options": {"seed": seed + 1000 * attempt, "num_ctx": 8192, "num_predict": 2048}}
@@ -48,7 +49,11 @@ def chat(model: str, messages: list[dict], seed: int, think, server_errors: list
                                      headers={"Content-Type": "application/json"})
         try:
             with urllib.request.urlopen(req, timeout=1800) as r:
-                return json.loads(r.read())["message"]
+                answer = json.loads(r.read())
+            if usage is not None:
+                usage.append({"prompt_tokens": answer.get("prompt_eval_count", 0),
+                              "output_tokens": answer.get("eval_count", 0)})
+            return answer["message"]
         except urllib.error.HTTPError as e:
             if e.code != 500 or attempt == 2:
                 raise
@@ -57,15 +62,17 @@ def chat(model: str, messages: list[dict], seed: int, think, server_errors: list
     raise RuntimeError("unreachable")
 
 
-def run(ticket: Ticket, executor, model: str, seed: int, think=False, max_calls: int = 16) -> dict:
-    messages = [{"role": "system", "content": SYSTEM},
+def run(ticket: Ticket, executor, model: str, seed: int, think=False, max_calls: int = 16,
+        system: str | None = None) -> dict:
+    """`system` replaces the prompt (Episode 5 tries one-line changes to it); None keeps SYSTEM."""
+    messages = [{"role": "system", "content": SYSTEM if system is None else system},
                 {"role": "user", "content": f"New ticket {ticket.id} from {ticket.customer['name']} "
                                             f"<{ticket.email}>:\n\n{ticket.text}\n\nPlease handle it."}]
-    transcript, server_errors = [], []
+    transcript, server_errors, usage = [], [], []
     nudges = 0
     started = time.time()
     for _ in range(max_calls):
-        m = chat(model, messages, seed, think, server_errors)
+        m = chat(model, messages, seed, think, server_errors, usage)
         msg = {"role": "assistant", "content": m.get("content", "")}
         if m.get("tool_calls"):
             msg["tool_calls"] = m["tool_calls"]
@@ -93,4 +100,6 @@ def run(ticket: Ticket, executor, model: str, seed: int, think=False, max_calls:
             transcript.append({"type": "tool", "name": name, "args": args, "result": result})
             messages.append({"role": "tool", "tool_name": name, "content": result})
     return {"seconds": round(time.time() - started, 1), "transcript": transcript,
-            "server_errors": server_errors}
+            "server_errors": server_errors, "model_calls": len(usage),
+            "tokens": {"prompt": sum(u["prompt_tokens"] for u in usage),
+                       "output": sum(u["output_tokens"] for u in usage)}}

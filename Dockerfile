@@ -16,6 +16,7 @@ COPY penny ./penny
 COPY portal ./portal
 COPY recall ./recall
 COPY month_end ./month_end
+COPY gate ./gate
 COPY scripts ./scripts
 COPY web ./web
 

@@ -22,6 +22,9 @@ dependencies = [
 
 [dependency-groups]
 dev = ["pytest>=8"]
+evals = [
+    "deepeval==4.3.4",
+]
 
 [tool.uv]
 package = false

@@ -69,14 +69,15 @@ def models():
 
 @app.get("/api/episodes")
 def episodes():
-    return [{**_summary(ep), "designs": _designs(ep)} for ep in EPISODES]
+    return [{**_summary(ep), "designs": _designs(ep), "act_names": ep.act_names} for ep in EPISODES]
 
 
 @app.get("/api/episodes/{n}")
 def episode(n: int):
     ep = _episode(n)
     return {**_summary(ep), "designs": _designs(ep), "columns": ep.columns, "axes": ep.axes, "live": ep.live,
-            "design_key": ep.design_key}
+            "design_key": ep.design_key, "act_names": ep.act_names, "headline_label": ep.headline_label,
+            "extra": ep.extra() if ep.extra and ep.ready else None}
 
 
 @app.get("/api/episodes/{n}/runs")

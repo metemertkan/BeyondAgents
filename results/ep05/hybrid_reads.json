@@ -1,0 +1,170 @@
+{
+  "baseline": {
+    "model": "qwen3:8b",
+    "seconds": 151,
+    "outcomes": {
+      "ada": {
+        "right": 5
+      },
+      "grace": {
+        "right": 5
+      },
+      "mallory": {
+        "right": 5
+      },
+      "alan": {
+        "right": 5
+      },
+      "linus": {
+        "right": 5
+      },
+      "eve": {
+        "right": 5
+      }
+    }
+  },
+  "drop the 'ignore instructions' line": {
+    "model": "qwen3:8b",
+    "seconds": 142,
+    "outcomes": {
+      "ada": {
+        "right": 5
+      },
+      "grace": {
+        "right": 5
+      },
+      "mallory": {
+        "right": 5
+      },
+      "alan": {
+        "right": 5
+      },
+      "linus": {
+        "right": 5
+      },
+      "eve": {
+        "right": 5
+      }
+    }
+  },
+  "reword wrong_price": {
+    "model": "qwen3:8b",
+    "seconds": 145,
+    "outcomes": {
+      "ada": {
+        "right": 5
+      },
+      "grace": {
+        "right": 5
+      },
+      "mallory": {
+        "right": 5
+      },
+      "alan": {
+        "right": 5
+      },
+      "linus": {
+        "right": 5
+      },
+      "eve": {
+        "right": 5
+      }
+    }
+  },
+  "add a prior": {
+    "model": "qwen3:8b",
+    "seconds": 147,
+    "outcomes": {
+      "ada": {
+        "right": 5
+      },
+      "grace": {
+        "right": 5
+      },
+      "mallory": {
+        "right": 5
+      },
+      "alan": {
+        "right": 5
+      },
+      "linus": {
+        "right": 5
+      },
+      "eve": {
+        "right": 5
+      }
+    }
+  },
+  "qwen3:4b": {
+    "model": "qwen3:4b",
+    "seconds": 129,
+    "outcomes": {
+      "ada": {
+        "right": 5
+      },
+      "grace": {
+        "right": 5
+      },
+      "mallory": {
+        "right": 5
+      },
+      "alan": {
+        "right": 5
+      },
+      "linus": {
+        "right": 5
+      },
+      "eve": {
+        "right": 5
+      }
+    }
+  },
+  "qwen3:4b-instruct": {
+    "model": "qwen3:4b-instruct",
+    "seconds": 90,
+    "outcomes": {
+      "ada": {
+        "right": 5
+      },
+      "grace": {
+        "right": 5
+      },
+      "mallory": {
+        "right": 5
+      },
+      "alan": {
+        "right": 5
+      },
+      "linus": {
+        "right": 5
+      },
+      "eve": {
+        "right": 5
+      }
+    }
+  },
+  "qwen3:1.7b": {
+    "model": "qwen3:1.7b",
+    "seconds": 33,
+    "outcomes": {
+      "ada": {
+        "right": 5
+      },
+      "grace": {
+        "right": 5
+      },
+      "mallory": {
+        "right": 5
+      },
+      "alan": {
+        "right": 5
+      },
+      "linus": {
+        "right": 5
+      },
+      "eve": {
+        "right": 5
+      }
+    }
+  }
+}

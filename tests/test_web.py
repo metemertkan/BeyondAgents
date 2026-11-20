@@ -20,7 +20,8 @@ def test_every_episode_listed_and_the_shipped_design_is_clean():
     eps = client.get("/api/episodes").json()
     assert [e["n"] for e in eps] == [e.n for e in EPISODES]
     for e in eps:
-        if e["ready"]:
+        # Episodes whose designs are the three acts end with what I'd build; Episode 5's designs are versions.
+        if e["ready"] and not e["act_names"]:
             last = e["designs"][-1]
             assert last["act"] == 3 and last["headline"].startswith("0 /"), (e["n"], last)
 

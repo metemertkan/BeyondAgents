@@ -199,7 +199,7 @@ function card(e) {
     <div class="eyebrow">Episode ${e.n} · ${e.runs} recorded runs</div>
     <h3>${esc(e.question)}</h3>
     <div class="answer">${esc(e.answer)}</div>
-    <div class="spark"><span class="badge fail">PoC: ${esc(first.headline)}</span><span class="badge fix">${esc(last.name)}: ${esc(last.headline)}</span></div>
+    ${e.act_names && Object.keys(e.act_names).length ? '' : `<div class="spark"><span class="badge fail">PoC: ${esc(first.headline)}</span><span class="badge fix">${esc(last.name)}: ${esc(last.headline)}</span></div>`}
   </a>`;
 }
 
@@ -211,9 +211,13 @@ async function episode(n) {
   const ep = await api(`/api/episodes/${n}`);
   if (!ep.ready) { $app.innerHTML = `<div class="ep-head"><div class="eyebrow">Episode ${n}</div><h1>${esc(ep.question)}</h1><p class="sentence muted">Coming soon.</p></div>`; return; }
   state.ep = ep; state.filters = {}; state.sel = null;
-  const headlineLabel = {1: 'runs with a mistake', 2: 'runs with a mistake', 3: 'runs with a mistake', 4: 'customers hurt, crashed jobs'}[n] || 'mistakes';
+  const headlineLabel = ep.headline_label || {1: 'runs with a mistake', 2: 'runs with a mistake', 3: 'runs with a mistake', 4: 'customers hurt, crashed jobs'}[n] || 'mistakes';
+  const actName = a => (ep.act_names && ep.act_names[a]) ? `Act ${a} · ${ep.act_names[a]}` : ACTS[a];
+  const extra = ep.extra ? `<section><h2>${esc(ep.extra.title)}</h2><p class="lead">${esc(ep.extra.lead)}</p>
+    <div class="panel table-wrap"><table><thead><tr>${ep.extra.columns.map((c, i) => `<th class="${i > 1 ? 'num' : ''}">${esc(c)}</th>`).join('')}</tr></thead>
+    <tbody>${ep.extra.rows.map(r => `<tr>${r.map((c, i) => `<td class="${i > 1 ? 'num' : ''}">${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div></section>` : '';
   const acts = [1, 2, 3].map(a => `
-    <div class="act"><div class="eyebrow">${ACTS[a]}</div><div class="act-designs">
+    <div class="act"><div class="eyebrow">${actName(a)}</div><div class="act-designs">
       ${ep.designs.filter(d => d.act === a).map(d => `
         <div class="panel design">
           <h3>${esc(d.name)}</h3><p>${esc(d.blurb)}</p>
@@ -234,6 +238,7 @@ async function episode(n) {
     </div>
     <section><h2>The designs</h2><p class="lead">Every design faced the same scenarios with the same local models.</p><div class="acts">${acts}</div></section>
     <section><h2>The scoreboard</h2><p class="lead">Totals across every recorded run of each design.</p>${table}</section>
+    ${extra}
     <section><h2>Replay a run</h2><p class="lead">Every recorded run, with what the agent saw, said and did. Pick one to see why it counts as a mistake or not.</p>
       <div class="filters" id="filters">${ep.axes.map(a => `<label>${esc(a.label)}<select data-k="${esc(a.key)}"><option value="">All</option>${a.values.map(v => `<option>${esc(v)}</option>`).join('')}</select></label>`).join('')}
         <label>Result<select data-k="__status"><option value="">All</option><option value="mistake">Mistakes</option><option value="right">Right</option><option value="neutral">Other</option></select></label></div>
@@ -357,6 +362,8 @@ const RENDER = {
     return h;
   },
 };
+
+RENDER[5] = RENDER[1];   // the same agent and records as Episode 1
 
 // ---------------------------------------------------------------- live runs
 async function checkModels() {

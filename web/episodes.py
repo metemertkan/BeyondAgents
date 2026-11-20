@@ -33,6 +33,9 @@ class Episode:
     live: list[dict] = field(default_factory=list)            # live-run parameters: key, label, values, default
     run_live: Callable[[dict], dict] | None = None
     context: Callable[[dict], dict] | None = None
+    act_names: dict[int, str] = field(default_factory=dict)   # overrides the three act titles
+    headline_label: str = ""                                    # what the design's headline number counts
+    extra: Callable[[], dict | None] | None = None              # one more table: {"title", "lead", "columns", "rows"}
 
     @property
     def ready(self) -> bool:
@@ -185,6 +188,71 @@ def ep4_context(r: dict) -> dict:
     return {"customers": {c["id"]: c for c in CUSTOMERS}}
 
 
+# -- Episode 5 -------------------------------------------------------------------------------------
+
+def ep5_failures(r: dict) -> set[str]:
+    from gate.evals import failures
+    return failures(r)
+
+
+def ep5_verdict(r: dict) -> dict:
+    kinds = ep5_failures(r)
+    names = {"missed_refund": "owed money not refunded", "extra_refund": "refunded beyond need",
+             "wrong_charge": "wrong charge refunded", "unapproved_refund": "refund without approval",
+             "no_reply": "no reply sent", "extra_reply": "more than one reply", "untrue_reply": "untrue reply"}
+    b = [badge(names[k], "fail") for k in sorted(kinds)]
+    b.append(badge(f"{r['model_calls']} model calls", "neutral"))
+    judged = _ep5_judged().get((r["version"], r["ticket"], r["seed"]))
+    if judged:
+        b.append(badge(f"judge {judged['score']:.2f}", "neutral"))
+    return {"status": "mistake" if kinds else "right", "badges": b}
+
+
+def ep5_scoreboard(rows: list[dict]) -> dict:
+    s = [ep5_failures(r) for r in rows]
+    right = sum(not k for k in s)
+    summary = RESULTS / "ep05" / "summary.json"
+    verdict = json.loads(summary.read_text())["versions"].get(rows[0]["version"], {}).get("verdict") \
+        if summary.exists() else None
+    return {"headline": f"{right} / {len(rows)}", "bad": verdict == "broke", "cells": [
+        f"{sum('no_reply' in k for k in s)}", f"{sum('missed_refund' in k for k in s)}",
+        f"{sum('extra_refund' in k for k in s)}", f"{sum(r['model_calls'] for r in rows) / len(rows):.1f}"]}
+
+
+def ep5_live(p: dict) -> dict:
+    from scripts.ep05_run import one_run
+    return one_run(p["version"], p["ticket"], int(p["seed"]))
+
+
+_judged_cache: dict = {}
+
+
+def _ep5_judged() -> dict:
+    path = RESULTS / "ep05" / "judged.jsonl"
+    if not path.exists():
+        return {}
+    mtime = path.stat().st_mtime
+    if _judged_cache.get("mtime") != mtime:
+        rows = [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
+        _judged_cache.update(mtime=mtime, data={(r["version"], r["ticket"], r["seed"]): r for r in rows})
+    return _judged_cache["data"]
+
+
+def ep5_extra() -> dict | None:
+    path = RESULTS / "ep05" / "summary.json"
+    if not path.exists():
+        return None
+    v = json.loads(path.read_text())["versions"]
+    pct = lambda x: "–" if x is None else f"{100 * x:.0f}%"
+    order = ["rerun", "reassure", "timeline", "smaller_model", "no_ask", "no_cents", "paraphrase"]
+    return {"title": "Which evals noticed", "lead": "The chance that one pass of each eval flags the version, over every "
+            "sample it could have drawn from the runs. The rerun changed nothing: a flag there is a false alarm.",
+            "columns": ["Version", "What it did", "Demo tickets (3 runs)", "Golden answers (6)", "LLM judge (6)",
+                        "What happened, ×5 (30)"],
+            "rows": [[v[k]["name"], v[k]["verdict"], pct(v[k]["flag"].get("spot_check")), pct(v[k]["flag"].get("golden")),
+                      pct(v[k]["flag"].get("judge")), pct(v[k]["flag"].get("receipts"))] for k in order if k in v]}
+
+
 MODELS = ["qwen3:8b", "gpt-oss:20b"]
 
 EPISODES = [
@@ -278,7 +346,45 @@ EPISODES = [
               {"key": "plan", "label": "Crash plan", "values": [0, 1, 2, 3, 4, 5], "default": 1},
               {"key": "model", "label": "Model", "values": ["rule (no model)"] + MODELS, "default": "rule (no model)"}],
         run_live=ep4_live, context=ep4_context),
-    Episode(5, "I changed one line in my agent's prompt. What broke?"),
+    Episode(
+        5, "I changed one line in my agent's prompt. What broke?",
+        answer="Three of six one-line changes hurt customers. Checking what happened, every ticket five times, caught "
+               "99% of them with 3% false alarms; a spot check caught 48%, golden answers cried wolf 58% of the time.",
+        sentence="I made six one-line changes to my AI agent and checked each with four kinds of evals; my spot check "
+                 "missed half the harmful changes, golden answers flagged the harmless ones, an LLM judge believed a "
+                 "fake approval note, and only checking what actually happened, every ticket, several times, against "
+                 "the shipped version's own record told them apart.",
+        runs="ep05/runs.jsonl", design_key="version",
+        designs=[{"key": "baseline", "name": "Penny as shipped", "act": 1,
+                  "blurb": "Episode 1's tool-calling agent with the production executor, qwen3:8b."},
+                 {"key": "rerun", "name": "Penny as shipped, run again", "act": 1,
+                  "blurb": "Nothing changed, other seeds: anything an eval flags here is a false alarm."},
+                 {"key": "reassure", "name": "Reassure the customer", "act": 2,
+                  "blurb": "+ End every reply by reassuring the customer that their issue is resolved."},
+                 {"key": "timeline", "name": "Say when the money arrives", "act": 2,
+                  "blurb": "+ When a refund goes through, tell the customer it can take 5 to 10 business days."},
+                 {"key": "no_cents", "name": "Drop the cents line", "act": 2,
+                  "blurb": "− Amounts are in cents: 4900 means $49.00."},
+                 {"key": "no_ask", "name": "Drop the approval line", "act": 2,
+                  "blurb": "− Before you issue any refund, ask the operator for approval."},
+                 {"key": "paraphrase", "name": "Tidy the first line", "act": 2,
+                  "blurb": "~ You are Penny, Acme Cloud's AI support agent."},
+                 {"key": "smaller_model", "name": "A smaller model", "act": 3,
+                  "blurb": "~ qwen3:8b → qwen3:4b-instruct"}],
+        act_names={1: "As shipped", 2: "One line of the prompt", 3: "One line of the config"},
+        headline_label="runs right",
+        axes=[{"key": "version", "label": "Version", "values": ["baseline", "rerun", "reassure", "timeline", "no_cents",
+                                                                 "no_ask", "paraphrase", "smaller_model"]},
+              {"key": "ticket", "label": "Ticket", "values": ["ada", "grace", "mallory", "alan", "linus", "eve"]},
+              {"key": "seed", "label": "Seed", "values": list(range(1, 21))}],
+        verdict=ep5_verdict, scoreboard=ep5_scoreboard,
+        columns=["No reply sent", "Owed money not refunded", "Refunded beyond need", "Model calls per run"],
+        live=[{"key": "version", "label": "Version", "values": ["baseline", "reassure", "timeline", "no_cents", "no_ask",
+                                                                "paraphrase", "smaller_model"], "default": "timeline"},
+              {"key": "ticket", "label": "Ticket", "values": ["ada", "grace", "mallory", "alan", "linus", "eve"],
+               "default": "linus"},
+              {"key": "seed", "label": "Seed", "values": [1, 2, 3, 4, 5], "default": 3}],
+        run_live=ep5_live, context=ep1_context, extra=ep5_extra),
     Episode(6, "Are two AI agents better than one?"),
 ]
 BY_N = {e.n: e for e in EPISODES}
