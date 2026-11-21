@@ -253,6 +253,38 @@ def ep5_extra() -> dict | None:
                       pct(v[k]["flag"].get("judge")), pct(v[k]["flag"].get("receipts"))] for k in order if k in v]}
 
 
+# -- Episode 6 -------------------------------------------------------------------------------------
+
+def ep6_verdict(r: dict) -> dict:
+    names = {"missed_refund": "owed money not refunded", "extra_refund": "refunded beyond need",
+             "wrong_charge": "wrong charge refunded", "unapproved_refund": "refund without approval",
+             "no_reply": "no reply sent", "extra_reply": "more than one reply", "untrue_reply": "untrue reply"}
+    b = [badge(names[k], "fail") for k in r["failures"]]
+    if r["billing_work"] > 1:
+        b.append(badge(f"billing did the work {r['billing_work']}×", "fail"))
+    if r["billing_replayed"]:
+        b.append(badge(f"{r['billing_replayed']} resend answered from the first task", "fix"))
+    if r["relayed_approval"]:
+        b.append(badge("fake approval retold as fact", "neutral"))
+    b.append(badge(f"{r['front_model_calls']}+{r['billing_model_calls']} model calls", "neutral"))
+    return {"status": "mistake" if r["failures"] else "right", "badges": b}
+
+
+def ep6_scoreboard(rows: list[dict]) -> dict:
+    right = lambda rs: f"{sum(not r['failures'] for r in rs)}/{len(rs)}" if rs else "–"
+    clean = [r for r in rows if r["condition"] == "clean"]
+    lost = [r for r in rows if r["condition"] == "lost_handoff"]
+    ok = sum(not r["failures"] for r in rows)
+    return {"headline": f"{ok} / {len(rows)}", "bad": ok < 0.8 * len(rows), "cells": [
+        right(clean), right(lost), f"{sum(r['billing_work'] > 1 for r in rows)}",
+        f"{sum(r['front_model_calls'] + r['billing_model_calls'] for r in rows) / len(rows):.1f}"]}
+
+
+def ep6_live(p: dict) -> dict:
+    from scripts.ep06_run import one_run
+    return one_run(p["design"], p["ticket"], p["condition"], int(p["seed"]))
+
+
 MODELS = ["qwen3:8b", "gpt-oss:20b"]
 
 EPISODES = [
@@ -385,7 +417,36 @@ EPISODES = [
                "default": "linus"},
               {"key": "seed", "label": "Seed", "values": [1, 2, 3, 4, 5], "default": 3}],
         run_live=ep5_live, context=ep1_context, extra=ep5_extra),
-    Episode(6, "Are two AI agents better than one?"),
+    Episode(
+        6, "Are two AI agents better than one?",
+        answer="Not by splitting alone: chatting in plain text, two agents got 67% right against one agent's 77%, and "
+               "50% when one answer between them was lost. With a contract between them: 83%, lost answer or not.",
+        sentence="I split my AI agent into a front desk and a billing agent talking over A2A; chatting in plain text "
+                 "they got fewer tickets right than one agent, and one lost answer between them refunded a customer "
+                 "twice and left others with untrue replies, until the hand-off became a contract: a typed work "
+                 "order, a message id from the ticket, and receipts back.",
+        runs="ep06/runs.jsonl", design_key="design",
+        designs=[{"key": "chat", "name": "Two agents, the A2A sample way", "act": 1,
+                  "blurb": "The front desk writes a request in its own words; text in, text out over A2A."},
+                 {"key": "whole_ticket", "name": "Hand over the whole ticket", "act": 2,
+                  "blurb": "The same, plus the customer's ticket word for word with every request."},
+                 {"key": "retry", "name": "Retry when a hand-off times out", "act": 2,
+                  "blurb": "The same as the sample way, plus: on a timeout, send the same message again."},
+                 {"key": "contract", "name": "A contract between agents", "act": 3,
+                  "blurb": "A typed work order, a message id from the ticket, the work done once per id, receipts back."}],
+        headline_label="runs right, both days",
+        axes=[{"key": "design", "label": "Design", "values": ["chat", "whole_ticket", "retry", "contract"]},
+              {"key": "condition", "label": "Day", "values": ["clean", "lost_handoff"]},
+              {"key": "ticket", "label": "Ticket", "values": ["ada", "grace", "mallory", "alan", "linus", "eve"]},
+              {"key": "seed", "label": "Repeat", "values": [1, 2, 3, 4, 5]}],
+        verdict=ep6_verdict, scoreboard=ep6_scoreboard,
+        columns=["Right, clean day", "Right, one answer lost", "Work done twice", "Model calls per run"],
+        live=[{"key": "design", "label": "Design", "values": ["chat", "whole_ticket", "retry", "contract"], "default": "retry"},
+              {"key": "ticket", "label": "Ticket", "values": ["ada", "grace", "mallory", "alan", "linus", "eve"],
+               "default": "grace"},
+              {"key": "condition", "label": "Day", "values": ["clean", "lost_handoff"], "default": "lost_handoff"},
+              {"key": "seed", "label": "Seed", "values": [1, 2, 3, 4, 5], "default": 1}],
+        run_live=ep6_live, context=ep1_context),
 ]
 BY_N = {e.n: e for e in EPISODES}
 

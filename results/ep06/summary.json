@@ -1,0 +1,182 @@
+{
+  "one_agent": {
+    "runs": 120,
+    "right": 92,
+    "failures": {
+      "extra_refund": 20,
+      "no_reply": 8
+    },
+    "extra_refund_usd": 980.0,
+    "model_calls": 4.92,
+    "tokens": 3898,
+    "seconds_median": 78.2
+  },
+  "designs": {
+    "chat / clean": {
+      "name": "Two agents, the A2A sample way",
+      "act": 1,
+      "runs": 30,
+      "right": 20,
+      "failures": {
+        "no_reply": 1,
+        "extra_refund": 4,
+        "untrue_reply": 5,
+        "missed_refund": 1
+      },
+      "extra_refund_usd": 196.0,
+      "model_calls": 7.27,
+      "tokens": 4590,
+      "seconds_median": 100.1,
+      "handoffs_sent": 31,
+      "work_done_twice": 1,
+      "replayed": 0,
+      "relayed_approval": 5,
+      "relay_tickets": 10,
+      "approvals_asked": 40,
+      "approvals_refused": 22,
+      "refunds": 18,
+      "refunds_traceable": 0
+    },
+    "chat / lost_handoff": {
+      "name": "Two agents, the A2A sample way",
+      "act": 1,
+      "runs": 30,
+      "right": 15,
+      "failures": {
+        "untrue_reply": 9,
+        "no_reply": 2,
+        "missed_refund": 3,
+        "extra_refund": 4
+      },
+      "extra_refund_usd": 167.0,
+      "model_calls": 9.37,
+      "tokens": 5816,
+      "seconds_median": 129.0,
+      "handoffs_sent": 42,
+      "work_done_twice": 12,
+      "replayed": 0,
+      "relayed_approval": 5,
+      "relay_tickets": 10,
+      "approvals_asked": 44,
+      "approvals_refused": 25,
+      "refunds": 16,
+      "refunds_traceable": 0
+    },
+    "whole_ticket / clean": {
+      "name": "Hand over the whole ticket",
+      "act": 2,
+      "runs": 30,
+      "right": 22,
+      "failures": {
+        "extra_refund": 5,
+        "untrue_reply": 3
+      },
+      "extra_refund_usd": 245.0,
+      "model_calls": 6.63,
+      "tokens": 4253,
+      "seconds_median": 101.5,
+      "handoffs_sent": 30,
+      "work_done_twice": 0,
+      "replayed": 0,
+      "relayed_approval": 5,
+      "relay_tickets": 10,
+      "approvals_asked": 40,
+      "approvals_refused": 20,
+      "refunds": 20,
+      "refunds_traceable": 0
+    },
+    "whole_ticket / lost_handoff": {
+      "name": "Hand over the whole ticket",
+      "act": 2,
+      "runs": 30,
+      "right": 14,
+      "failures": {
+        "no_reply": 4,
+        "untrue_reply": 11,
+        "extra_refund": 6
+      },
+      "extra_refund_usd": 265.0,
+      "model_calls": 9.27,
+      "tokens": 6101,
+      "seconds_median": 127.7,
+      "handoffs_sent": 41,
+      "work_done_twice": 11,
+      "replayed": 0,
+      "relayed_approval": 6,
+      "relay_tickets": 10,
+      "approvals_asked": 59,
+      "approvals_refused": 31,
+      "refunds": 21,
+      "refunds_traceable": 0
+    },
+    "retry / lost_handoff": {
+      "name": "Retry when a hand-off times out",
+      "act": 2,
+      "runs": 30,
+      "right": 18,
+      "failures": {
+        "extra_refund": 6,
+        "missed_refund": 3,
+        "untrue_reply": 6,
+        "no_reply": 1
+      },
+      "extra_refund_usd": 207.0,
+      "model_calls": 10.2,
+      "tokens": 6419,
+      "seconds_median": 149.7,
+      "handoffs_sent": 60,
+      "work_done_twice": 30,
+      "replayed": 0,
+      "relayed_approval": 6,
+      "relay_tickets": 10,
+      "approvals_asked": 58,
+      "approvals_refused": 34,
+      "refunds": 18,
+      "refunds_traceable": 0
+    },
+    "contract / clean": {
+      "name": "A contract between agents",
+      "act": 3,
+      "runs": 30,
+      "right": 25,
+      "failures": {
+        "extra_refund": 5
+      },
+      "extra_refund_usd": 245.0,
+      "model_calls": 7.4,
+      "tokens": 5680,
+      "seconds_median": 108.9,
+      "handoffs_sent": 30,
+      "work_done_twice": 0,
+      "replayed": 0,
+      "relayed_approval": 6,
+      "relay_tickets": 10,
+      "approvals_asked": 50,
+      "approvals_refused": 30,
+      "refunds": 20,
+      "refunds_traceable": 20
+    },
+    "contract / lost_handoff": {
+      "name": "A contract between agents",
+      "act": 3,
+      "runs": 30,
+      "right": 25,
+      "failures": {
+        "extra_refund": 5
+      },
+      "extra_refund_usd": 245.0,
+      "model_calls": 7.4,
+      "tokens": 5682,
+      "seconds_median": 106.2,
+      "handoffs_sent": 60,
+      "work_done_twice": 0,
+      "replayed": 30,
+      "relayed_approval": 6,
+      "relay_tickets": 10,
+      "approvals_asked": 50,
+      "approvals_refused": 30,
+      "refunds": 20,
+      "refunds_traceable": 20
+    }
+  }
+}

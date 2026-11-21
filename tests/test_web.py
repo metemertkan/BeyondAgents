@@ -19,11 +19,18 @@ def test_health_and_index():
 def test_every_episode_listed_and_the_shipped_design_is_clean():
     eps = client.get("/api/episodes").json()
     assert [e["n"] for e in eps] == [e.n for e in EPISODES]
+    labels = {ep.n: ep.headline_label for ep in EPISODES}
     for e in eps:
         # Episodes whose designs are the three acts end with what I'd build; Episode 5's designs are versions.
-        if e["ready"] and not e["act_names"]:
-            last = e["designs"][-1]
-            assert last["act"] == 3 and last["headline"].startswith("0 /"), (e["n"], last)
+        if not e["ready"] or e["act_names"]:
+            continue
+        last = e["designs"][-1]
+        assert last["act"] == 3, (e["n"], last)
+        if labels[e["n"]]:      # the headline counts runs right: what I'd build has the most
+            count = lambda d: int(d["headline"].split("/")[0])
+            assert count(last) == max(count(d) for d in e["designs"]), (e["n"], e["designs"])
+        else:                   # the headline counts mistakes: what I'd build has none
+            assert last["headline"].startswith("0 /"), (e["n"], last)
 
 
 @pytest.mark.parametrize("n", READY)

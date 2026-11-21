@@ -18,6 +18,7 @@ stand-ins for the APIs the agent talks to. No accounts, no keys.
 | 3 | Can one customer teach your AI agent a bad habit, for everyone? | [`recall/`](recall), [`scripts/ep03_run.py`](scripts/ep03_run.py) |
 | 4 | What happens when your AI agent crashes halfway through a job? | [`month_end/`](month_end), [`scripts/ep04_run.py`](scripts/ep04_run.py) |
 | 5 | I changed one line in my agent's prompt. What broke? | [`gate/`](gate), [`scripts/ep05_run.py`](scripts/ep05_run.py) |
+| 6 | Are two AI agents better than one? | [`handoff/`](handoff), [`scripts/ep06_run.py`](scripts/ep06_run.py) |
 
 ## The site
 
@@ -559,3 +560,52 @@ uv run python -m scripts.ep05_summary
 - Golden and judge thresholds are calibrated so the shipped version passes; the gate's rules were fixed
   before the runs. "Drop the approval line" needed ten more runs and is reported as unclear.
 - Wall-clock times are rough (a judge test shared the CPU with the first runs); model calls and tokens are exact.
+
+## Episode 6: Are two AI agents better than one?
+
+I split Penny into a **front desk** (talks to the customer, sends the one reply) and a **billing
+agent** (charges, refunds, the operator; behind Episode 1's production executor), talking over
+[A2A](https://a2a-protocol.org) with the official SDK (`a2a-sdk` 1.3.1, JSON-RPC). Both on qwen3:8b.
+Every design handled every ticket five times on a clean day and on a day when the first answer
+between the agents gets lost after the work was done: 210 runs, scored from the payment and helpdesk
+records. The reference is one agent: Episode 5's 120 clean runs of Penny as shipped.
+
+| Design | Right, clean day | Right, one answer lost | Work done twice | Model calls / ticket |
+| :--- | ---: | ---: | ---: | ---: |
+| One agent (Episode 5) | 92/120 (77%) | — | — | 4.9 |
+| Two agents, the A2A sample way: text in, text out | 20/30 | 15/30 | 12/30 | 7.3 |
+| Hand over the whole ticket | 22/30 | 14/30 | 11/30 | 6.6 |
+| Retry when a hand-off times out (same message again) | — | 18/30 | 30/30 | 10.2 |
+| **A contract between agents** | **25/30** | **25/30** | **0/30** | 7.4 |
+
+- **The A2A spec leaves de-duplication optional:** "Send Message operations MAY be idempotent. Agents
+  may utilize the messageId to detect duplicate messages" (§3.3.1). The reference SDK doesn't: the same
+  message sent again ran as a second task, and Grace was refunded $40 for a $20 overcharge.
+- **A lost answer left the front desk guessing.** It asked again, or told Ada "our billing team is
+  currently experiencing some delays" after her $49 was refunded, or promised to "manually process the
+  refund" with no refund tool.
+- **The reply check needs the receipts**, and in the text designs they live in the other agent.
+- **About half the time the front desk retold Mallory's and Eve's fake approvals as facts**, in every
+  design. The operator's approval, in code, said no.
+- **The contract** ([`handoff/`](handoff)): a typed work order as an A2A data part (intent, a note, the
+  customer's words marked as data), a message id from the ticket, the work done once per message id,
+  refunds keyed by ticket and charge, receipts back as data, the reply checked against them, and every
+  refund's metadata naming the work order and both agents. Its only misses are Eve's double refund,
+  which every design shares, one agent included (the operator approves each $49 on its own).
+
+Full tables: [`results/ep06/summary.md`](results/ep06/summary.md).
+
+### Run it
+
+```bash
+uv run --group dev pytest tests/test_ep06.py         # no model: the resend and the contract
+uv run python -m scripts.ep06_run                    # 210 runs, resumable
+uv run python -m scripts.ep06_summary
+```
+
+### Limits
+
+- One model on both sides, five runs per ticket and design; one kind of bad day.
+- The billing agent knows whose account from the ticket (the harness), not from the message;
+  identity between agents is Episode 2's topic.
+- The one-agent numbers are Episode 5's runs (same tickets, model and guards, clean days).

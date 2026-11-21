@@ -364,6 +364,31 @@ const RENDER = {
 };
 
 RENDER[5] = RENDER[1];   // the same agent and records as Episode 1
+RENDER[6] = (r, ctx) => {
+  const t = ctx.ticket;
+  let h = t ? `<div class="sub">The ticket</div>${msg(`${t.from} · ${t.plan} plan`, t.text, 'user')}
+    <div class="small muted" style="margin-top:6px">Right refund ${usd(t.right_refund)} · day: <b>${esc(r.condition)}</b></div>` : '';
+  h += `<div class="sub">The front desk</div><div class="tx">` + r.transcript.map(e => {
+    if (e.type === 'tool') return toolMsg(e, /^Error/.test(String(e.result)) ? 'fail' : '');
+    if (e.type === 'operator') return msg('operator', e.text, 'user');
+    return msg('front desk', e.text || '', 'agent');
+  }).join('') + `</div>`;
+  h += `<div class="sub">Hand-offs over A2A (${r.handoffs.length})</div>` + r.handoffs.map(x =>
+    `<div class="msg tool ${String(x.outcome).startsWith('answered') ? '' : 'fail'}"><div class="who">message ${esc(String(x.message_id).slice(0, 8))} · attempt ${x.attempt} · ${esc(x.outcome)}</div><div class="body">${esc(x.own_words)}</div>${x.relays_approval ? '<div class="small" style="color:var(--br-fail)">retells the customer\'s approval as a fact</div>' : ''}</div>`).join('');
+  h += `<div class="sub">The billing agent's tasks (${r.billing_jobs.length})</div>` + r.billing_jobs.map((j, k) => {
+    if (j.replayed) return msg(`task ${k + 1} · same message id · answered from the first task`, j.answer, 'code');
+    const tools = (j.transcript || []).filter(e => e.type === 'tool').map(e => toolMsg(e, /not approved/.test(String(e.result)) ? 'fail' : '')).join('');
+    return `<div class="convo"><div class="eyebrow">Task ${k + 1}${r.billing_jobs.length > 1 && !r.billing_jobs.some(x => x.replayed) ? ' · work done again' : ''}</div>
+      ${msg('request', j.request, 'user')}<div class="tx" style="margin-top:8px">${tools}</div>${msg('billing agent answers', j.answer, 'agent')}</div>`;
+  }).join('');
+  h += `<div class="sub">Money that moved</div>` + (r.refunds.length ? `<div class="table-wrap"><table><tr><th>Refund</th><th>Charge</th><th class="num">Amount</th><th>Work order</th><th>Decided by</th></tr>${r.refunds.map((f, k) => {
+    const m = (r.refund_metadata || [])[k] || {};
+    return `<tr><td class="mono">${esc(f.id)}</td><td class="mono">${esc(f.charge)}</td><td class="num">${usd(f.amount)}</td><td class="mono">${esc(m.work_order ? m.work_order.slice(0, 8) : '— untraceable')}</td><td class="mono">${esc(m.decided_by || '—')}</td></tr>`;
+  }).join('')}</table></div>` : '<div class="muted small">No refunds.</div>');
+  h += `<div class="sub">What the customer got (${r.replies.length})</div>` + (r.replies.map(x => msg('reply', x, r.reply_problems.length ? 'fail' : '')).join('') || '<div class="muted small">No reply.</div>');
+  if (r.reply_problems.length) h += `<div class="sub">What the reply says that the records don't show</div>` + r.reply_problems.map(p => `<div class="mem" style="border-color:var(--br-fail)">${esc(p)}</div>`).join('');
+  return h;
+};
 
 // ---------------------------------------------------------------- live runs
 async function checkModels() {

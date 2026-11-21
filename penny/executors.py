@@ -110,6 +110,10 @@ class ProductionExecutor:
         self.questions = 0
         self.blocked_replies = 0
         self.log: list[dict] = []
+        # Episode 6 hooks (both off by default): extra metadata on every refund, and approval ids
+        # (which are the idempotency keys) derived from the request instead of random.
+        self.refund_metadata: dict = {}
+        self.approval_id_for: Callable[[str, int], str] | None = None
 
     # -- the interface --------------------------------------------------------------------------
 
@@ -221,7 +225,8 @@ class ProductionExecutor:
         if approval is None:
             card = self._card(charge, amount, args.get("reason"))
             ok, answer = approver(self.ticket, card, amount=amount, charge_id=charge_id)
-            approval = Approval(f"apr_{uuid.uuid4().hex[:12]}", args_hash, card, ok, answer)
+            approval_id = self.approval_id_for(charge_id, amount) if self.approval_id_for else f"apr_{uuid.uuid4().hex[:12]}"
+            approval = Approval(approval_id, args_hash, card, ok, answer)
             self.approvals[args_hash] = approval
         if not approval.approved:
             return (f"Refund not approved by the operator: {approval.answer} Nothing was refunded. "
@@ -231,7 +236,8 @@ class ProductionExecutor:
         self.receipts.append(receipt)
         answer = self._write(lambda: self.backend.refund(
             charge_id, amount, args.get("reason"), idempotency_key=approval.id,
-            metadata={"approval_id": approval.id, "ticket": self.ticket.id}, audit_approval=approval.id),
+            metadata={"approval_id": approval.id, "ticket": self.ticket.id, **self.refund_metadata},
+            audit_approval=approval.id),
             receipt)
         if receipt.outcome == "done":
             receipt.provider_id = answer.get("id")

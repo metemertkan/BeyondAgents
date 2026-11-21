@@ -17,6 +17,7 @@ COPY portal ./portal
 COPY recall ./recall
 COPY month_end ./month_end
 COPY gate ./gate
+COPY handoff ./handoff
 COPY scripts ./scripts
 COPY web ./web
 
